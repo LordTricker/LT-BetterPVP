@@ -1,37 +1,35 @@
 {
 	"schemaVersion": 1,
-	"id": "modid",
+	"id": "ltbpvp",
 	"version": "${version}",
-	"name": "Example mod",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"name": "LT-BetterPVP",
+	"description": "Amatorska modyfikacja pozwalająca na ulepszenie animacji walki w minecraft",
 	"authors": [
-		"Me!"
+		"LordTricker"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://blazecode.pl/",
+		"sources": "https://github.com/LordTricker"
 	},
-	"license": "CC0-1.0",
-	"icon": "assets/modid/icon.png",
+	"license": "MIT",
+	"icon": "assets/ltbpvp/icon.png",
+
 	"environment": "*",
 	"entrypoints": {
-		"main": [
-			"com.example.ExampleMod"
-		],
 		"client": [
-			"com.example.ExampleModClient"
+			"pl.lordtricker.ltbpvp.client.LtbpvpClient"
 		]
 	},
 	"mixins": [
-		"modid.mixins.json",
 		{
-			"config": "modid.client.mixins.json",
+			"config": "ltbpvp.client.mixins.json",
 			"environment": "client"
 		}
 	],
+
 	"depends": {
-		"fabricloader": ">=0.16.10",
-		"minecraft": "~1.21.4",
+		"fabricloader": ">=0.15.11",
+		"minecraft": ">=1.21 <=1.21.1",
 		"java": ">=21",
 		"fabric-api": "*"
 	},
