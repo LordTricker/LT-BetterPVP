@@ -25,7 +25,7 @@ public class CommandRegistration {
                 ClientCommandManager.literal("ltb")
                         // /ltb – wyświetlenie podstawowych informacji
                         .executes(ctx -> {
-                            String msgKey = "command.main.info";
+                            String msgKey = "command.info";
                             String message = Messages.get(msgKey);
                             ctx.getSource().sendFeedback(ColorUtils.translateColorCodes(message));
                             return 1;
@@ -33,7 +33,7 @@ public class CommandRegistration {
                         // /ltb pomoc – lista dostępnych komend
                         .then(ClientCommandManager.literal("pomoc")
                                 .executes(ctx -> {
-                                    String msgKey = "command.main.help";
+                                    String msgKey = "command.help";
                                     String helpMessage = Messages.get(msgKey);
                                     ctx.getSource().sendFeedback(ColorUtils.translateColorCodes(helpMessage));
                                     return 1;
