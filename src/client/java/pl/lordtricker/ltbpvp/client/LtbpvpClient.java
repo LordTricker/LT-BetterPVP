@@ -20,7 +20,7 @@ public class LtbpvpClient implements ClientModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (!welcomeSent && client.player != null) {
 				welcomeSent = true;
-				String welcomeMsg = Messages.get("mod.info");
+				String welcomeMsg = Messages.get("player.join");
 				client.player.sendMessage(ColorUtils.translateColorCodes(welcomeMsg), false);
 			}
 		});
