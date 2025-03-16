@@ -18,10 +18,11 @@ public class Config {
     public boolean bobbingEnabled = false;
     public boolean autojumpEnabled = false;
     public boolean screenShakeEnabled = false;
+    public boolean gammaEnabled = false;
     public CrosshairColor crosshairColor = CrosshairColor.RGB;
 
     public SwingStyle swingStyle = SwingStyle.BASIC_SWING;
-    public TargetStyle targetStyle = TargetStyle.SHURIKEN;
+    public TargetStyle targetStyle = TargetStyle.CIRCLE_GAP;
     public int targetRange = 24;
 
     public Map<SwingStyle, AnimationOffsets> styleOffsets = new EnumMap<>(SwingStyle.class);
@@ -32,6 +33,9 @@ public class Config {
         public float offsetZ;
     }
 
+    /**
+     * Konstruktor ustawia domyślne offsety dla wszystkich stylów.
+     */
     public Config() {
         for (SwingStyle style : SwingStyle.values()) {
             AnimationOffsets off = new AnimationOffsets();

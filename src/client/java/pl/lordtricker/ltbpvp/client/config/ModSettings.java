@@ -18,9 +18,10 @@ public class ModSettings {
     public static boolean bobbingEnabled = false;
     public static boolean autojumpEnabled = false;
     public static boolean screenShakeEnabled = false;
+    public static boolean gammaEnabled = false;
     public static CrosshairColor crosshairColor = CrosshairColor.RGB;
 
-    public static TargetStyle targetStyle = TargetStyle.SHURIKEN;
+    public static TargetStyle targetStyle = TargetStyle.CIRCLE_GAP;
     public static int targetRange = 24;
 
     public static final Map<SwingStyle, AnimationOffsets> styleOffsets = new EnumMap<>(SwingStyle.class);
@@ -43,18 +44,27 @@ public class ModSettings {
         }
     }
 
+    /**
+     * Wywoływane, kiedy chcemy zapisać aktualne ustawienia do pliku JSON.
+     */
     public static void save() {
         Config cfg = toConfig();
         ConfigLoader.saveConfig(cfg);
-        System.out.println("[ModSettings] Saved -> betterpvp-config.json");
+        System.out.println("[ModSettings] Saved -> ltbetterpvp-config.json");
     }
 
+    /**
+     * Wywoływane, kiedy chcemy wczytać ustawienia z pliku JSON.
+     */
     public static void load() {
         Config cfg = ConfigLoader.loadConfig();
         applyFrom(cfg);
-        System.out.println("[ModSettings] Loaded <- betterpvp-config.json");
+        System.out.println("[ModSettings] Loaded <- ltbetterpvp-config.json");
     }
 
+    /**
+     * Tworzy obiekt Config na podstawie aktualnych wartości ModSettings.
+     */
     public static Config toConfig() {
         Config cfg = new Config();
         cfg.animationsEnabled = animationsEnabled;
@@ -62,6 +72,7 @@ public class ModSettings {
         cfg.bobbingEnabled = bobbingEnabled;
         cfg.autojumpEnabled = autojumpEnabled;
         cfg.screenShakeEnabled = screenShakeEnabled;
+        cfg.gammaEnabled = gammaEnabled;
         cfg.swingStyle = swingStyle;
         cfg.targetStyle = targetStyle;
         cfg.targetRange = targetRange;
@@ -77,12 +88,16 @@ public class ModSettings {
         return cfg;
     }
 
+    /**
+     * Ustawia pola ModSettings na podstawie obiektu Config wczytanego z pliku.
+     */
     public static void applyFrom(Config cfg) {
         animationsEnabled = cfg.animationsEnabled;
         targetingEnabled = cfg.targetingEnabled;
         bobbingEnabled = cfg.bobbingEnabled;
         autojumpEnabled = cfg.autojumpEnabled;
         screenShakeEnabled = cfg.screenShakeEnabled;
+        gammaEnabled = cfg.gammaEnabled;
         swingStyle = cfg.swingStyle;
         targetStyle = cfg.targetStyle;
         targetRange = cfg.targetRange;

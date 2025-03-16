@@ -9,12 +9,14 @@ public class MinecraftSettingsWidget {
     private ButtonWidget bobViewButton;
     private ButtonWidget damageTiltButton;
 
+    private ButtonWidget gammaButton;
+
     public void initWidgets(int x, int y, int width, int btnHeight, int rowSpacing) {
         MinecraftClient client = MinecraftClient.getInstance();
 
         boolean autoJump = client.options.getAutoJump().getValue();
         autoJumpButton = ButtonWidget.builder(
-                Text.of(getToggleDisplay(autoJump)),
+                Text.of( getToggleDisplay(autoJump)),
                 btn -> {
                     boolean current = client.options.getAutoJump().getValue();
                     client.options.getAutoJump().setValue(!current);
@@ -53,7 +55,7 @@ public class MinecraftSettingsWidget {
         return new ButtonWidget[] {
                 autoJumpButton,
                 bobViewButton,
-                damageTiltButton
+                damageTiltButton,
         };
     }
 
@@ -61,4 +63,3 @@ public class MinecraftSettingsWidget {
         return value ? "ON" : "OFF";
     }
 }
-

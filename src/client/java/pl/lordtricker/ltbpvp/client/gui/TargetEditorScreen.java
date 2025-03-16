@@ -10,73 +10,89 @@ import pl.lordtricker.ltbpvp.client.enums.CrosshairColor;
 import pl.lordtricker.ltbpvp.client.enums.TargetStyle;
 
 public class TargetEditorScreen extends Screen {
+
     private final Screen parentScreen;
+
+    private final int totalLines = 4;
+    private final int rowSpacing = 25;
+    private final int widgetWidth = 150;
+    private final int widgetHeight = 20;
+
+    private int startY;
+
     private ButtonWidget targetStyleButton;
-    private ButtonWidget colorButton; // przycisk wyboru koloru
+    private ButtonWidget colorButton;
     private RangeSliderWidget rangeSlider;
     private ButtonWidget resetButton;
     private ButtonWidget backButton;
 
     public TargetEditorScreen(Screen parentScreen) {
-        super(Text.literal("Edycja celownika"));
+        super(Text.literal("Edit - Cursor ESP"));
         this.parentScreen = parentScreen;
     }
 
     @Override
     protected void init() {
         int centerX = this.width / 2;
-        int startY = 50;
-        int sliderWidth = 150;
-        int btnHeight = 20;
-        int rowSpacing = 25;
 
+        int totalBlockHeight = totalLines * rowSpacing + 10;
+        this.startY = (this.height - totalBlockHeight) / 2;
+
+        int line1Y = startY;
         targetStyleButton = ButtonWidget.builder(
-                Text.of("Celownik: " + getTargetStyleDisplay(ModSettings.targetStyle)),
+                Text.of("Style: " + getTargetStyleDisplay(ModSettings.targetStyle)),
                 button -> {
                     ModSettings.targetStyle = getNextTargetStyle(ModSettings.targetStyle);
-                    button.setMessage(Text.of("Celownik: " + getTargetStyleDisplay(ModSettings.targetStyle)));
+                    button.setMessage(Text.of("Style: " + getTargetStyleDisplay(ModSettings.targetStyle)));
                 }
-        ).dimensions(centerX - sliderWidth / 2, startY, sliderWidth, btnHeight).build();
+        ).dimensions(centerX - widgetWidth / 2, line1Y, widgetWidth, widgetHeight).build();
         addDrawableChild(targetStyleButton);
 
+        int line2Y = startY + rowSpacing;
         colorButton = ButtonWidget.builder(
-                Text.of("Kolor: " + ModSettings.crosshairColor.name()),
+                Text.of("Color: " + ModSettings.crosshairColor.name()),
                 btn -> {
                     CrosshairColor next = getNextColor(ModSettings.crosshairColor);
                     ModSettings.crosshairColor = next;
-                    btn.setMessage(Text.of("Kolor: " + next.name()));
+                    btn.setMessage(Text.of("Color: " + next.name()));
                 }
-        ).dimensions(centerX - sliderWidth / 2, startY + rowSpacing, sliderWidth, btnHeight).build();
+        ).dimensions(centerX - widgetWidth / 2, line2Y, widgetWidth, widgetHeight).build();
         addDrawableChild(colorButton);
 
+        int line3Y = startY + 2 * rowSpacing;
         double initialNormalized = (ModSettings.targetRange - 16) / 32.0;
         rangeSlider = new RangeSliderWidget(
-                centerX - sliderWidth / 2,
-                startY + 2 * rowSpacing,
-                sliderWidth,
-                btnHeight,
-                Text.literal("Rozmiar: " + ModSettings.targetRange + "px"),
+                centerX - widgetWidth / 2,
+                line3Y,
+                widgetWidth,
+                widgetHeight,
+                Text.literal("Size: " + ModSettings.targetRange + "px"),
                 initialNormalized
         );
         addDrawableChild(rangeSlider);
 
+        int line4Y = startY + 3 * rowSpacing + 10;
         resetButton = ButtonWidget.builder(
-                Text.of("Resetuj ustawienia"),
+                Text.of("Reset"),
                 button -> {
-                    rangeSlider.setSliderValue((32 - 16) / 32.0);
+                    double defValue = (32 - 16) / 32.0;
+                    rangeSlider.setSliderValue(defValue);
+
                     ModSettings.crosshairColor = CrosshairColor.RGB;
-                    colorButton.setMessage(Text.of("Kolor: RGB"));
+                    colorButton.setMessage(Text.of("Color: RGB"));
                 }
-        ).dimensions(centerX - sliderWidth / 2, startY + 3 * rowSpacing + 10, sliderWidth, btnHeight).build();
+        ).dimensions(centerX - widgetWidth / 2, line4Y + 5, widgetWidth, widgetHeight).build();
         addDrawableChild(resetButton);
 
+        int backBtnWidth = 100;
+        int backBtnX = centerX - backBtnWidth / 2;
         backButton = ButtonWidget.builder(
-                Text.of("Wstecz"),
+                Text.of("Save"),
                 button -> {
-                    ModSettings.targetRange = (int)(16 + rangeSlider.getSliderValue() * 32);
+                    ModSettings.targetRange = (int) (16 + rangeSlider.getSliderValue() * 32);
                     this.client.setScreen(parentScreen);
                 }
-        ).dimensions(centerX - 40, this.height - 30, 80, btnHeight).build();
+        ).dimensions(backBtnX, this.height - 30, backBtnWidth, widgetHeight).build();
         addDrawableChild(backButton);
     }
 
@@ -100,10 +116,21 @@ public class TargetEditorScreen extends Screen {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         this.renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
-        int textWidth = this.textRenderer.getWidth(this.title);
-        context.drawText(this.textRenderer, this.title, (this.width - textWidth) / 2, 10, 0xFFFFFF, false);
+        drawCenteredTextLocal(context, this.title, 10, 0xFFFFFF);
     }
 
+    /**
+     * Rysuje wycentrowany tekst na zadanym Y (tu: 10).
+     */
+    private void drawCenteredTextLocal(DrawContext context, Text text, int y, int color) {
+        int textWidth = this.textRenderer.getWidth(text);
+        int x = (this.width - textWidth) / 2;
+        context.drawText(this.textRenderer, text, x, y, color, false);
+    }
+
+    /**
+     * Slider odpowiedzialny za zakres celownika.
+     */
     private class RangeSliderWidget extends SliderWidget {
         public RangeSliderWidget(int x, int y, int width, int height, Text message, double value) {
             super(x, y, width, height, message, value);
@@ -111,12 +138,13 @@ public class TargetEditorScreen extends Screen {
 
         @Override
         protected void updateMessage() {
-            int range = (int)(16 + this.value * 32);
-            this.setMessage(Text.literal("Rozmiar: " + range + "px"));
+            int range = (int) (16 + this.value * 32);
+            this.setMessage(Text.literal("Size: " + range + "px"));
         }
 
         @Override
-        protected void applyValue() {}
+        protected void applyValue() {
+        }
 
         public double getSliderValue() {
             return this.value;

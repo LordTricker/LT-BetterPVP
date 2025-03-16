@@ -43,7 +43,15 @@ public class CommandRegistration {
                         .then(ClientCommandManager.literal("settings")
                                 .executes(ctx -> {
                                     MinecraftClient client = MinecraftClient.getInstance();
-                                    client.execute(() -> client.setScreen(new MainSettingsScreen()));
+                                    client.setScreen(null);
+                                    new Thread(() -> {
+                                        try {
+                                            Thread.sleep(100);
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace();
+                                        }
+                                        client.execute(() -> client.setScreen(new MainSettingsScreen()));
+                                    }).start();
                                     return 1;
                                 })
                         )
