@@ -128,6 +128,7 @@ public class AnimationEditorScreen extends Screen {
             case BASIC_CLAP -> "BASIC_CLAP";
             case SWIPE_IN -> "SWIPE_IN";
             case SWIPE_OUT -> "SWIPE_OUT";
+            case NO_SWING -> "NO_SWING";
         };
     }
 

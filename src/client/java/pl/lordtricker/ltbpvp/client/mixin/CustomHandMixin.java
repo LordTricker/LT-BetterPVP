@@ -11,15 +11,15 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import pl.lordtricker.ltbpvp.client.config.ModSettings;
+import pl.lordtricker.ltbpvp.client.config.ModSettings.AnimationOffsets;
 import pl.lordtricker.ltbpvp.client.enums.SwingStyle;
 
 @Mixin(HeldItemRenderer.class)
-public abstract class CustomSwingHandMixin {
+public abstract class CustomHandMixin {
 
     @Inject(
             method = "renderFirstPersonItem(Lnet/minecraft/client/network/AbstractClientPlayerEntity;FFLnet/minecraft/util/Hand;FLnet/minecraft/item/ItemStack;FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
@@ -32,91 +32,97 @@ public abstract class CustomSwingHandMixin {
             float pitch,
             Hand hand,
             float swingProgress,
-            ItemStack item,
+            ItemStack stack,
             float equipProgress,
             MatrixStack matrices,
             VertexConsumerProvider vertexConsumers,
             int light,
             CallbackInfo ci
     ) {
+        // Jeśli animacje globalnie wyłączone – nic nie zmieniamy
         if (!ModSettings.animationsEnabled) {
             return;
         }
+        // Anulujemy vanilla render dla obu rąk, aby mieć pełną kontrolę
         ci.cancel();
 
-        HeldItemRenderer self = (HeldItemRenderer) (Object) this;
-        boolean isPhysicalRight =
-                (player.getMainArm() == Arm.RIGHT && hand == Hand.MAIN_HAND)
-                        || (player.getMainArm() == Arm.LEFT  && hand == Hand.OFF_HAND);
+        matrices.push();
 
-        if (isPhysicalRight) {
-            SwingStyle style = ModSettings.swingStyle;
-            applyRightHandAttackTransform(style, matrices, swingProgress);
-            ModSettings.AnimationOffsets offsets = ModSettings.styleOffsets.get(style);
+        HeldItemRenderer self = (HeldItemRenderer)(Object) this;
+
+        if (hand == Hand.MAIN_HAND) {
+            // === CUSTOMOWA ANIMACJA DLA MAIN_HAND ===
+            applyCustomMainHandSwing(matrices, swingProgress, ModSettings.swingStyle);
+
+            AnimationOffsets offsets = ModSettings.styleOffsets.get(ModSettings.swingStyle);
             if (offsets != null) {
                 matrices.translate(offsets.offsetX, offsets.offsetY, offsets.offsetZ);
             }
-            self.renderItem(
-                    player,
-                    item,
-                    ModelTransformationMode.FIRST_PERSON_RIGHT_HAND,
-                    false,
-                    matrices,
-                    vertexConsumers,
-                    light
-            );
-        } else {
+
+            boolean isRightDominant = player.getMainArm() == Arm.RIGHT;
+            ModelTransformationMode mode = isRightDominant
+                    ? ModelTransformationMode.FIRST_PERSON_RIGHT_HAND
+                    : ModelTransformationMode.FIRST_PERSON_LEFT_HAND;
+
+            self.renderItem(player, stack, mode, !isRightDominant, matrices, vertexConsumers, light);
+        } else if (hand == Hand.OFF_HAND) {
+            // === CUSTOMOWA ANIMACJA DLA OFF_HAND ===
+            // Jeśli gracz używa przedmiotu w off-hand (np. jedzenie), stosujemy transformację "eat"
             if (player.isUsingItem() && player.getActiveHand() == Hand.OFF_HAND) {
-                applyLeftHandEatTransform(matrices, item, player);
+                applyLeftHandEatTransform(matrices, stack, player);
             } else {
+                // W przeciwnym razie – statyczna transformacja
                 applyLeftHandStaticTransform(matrices);
             }
-            self.renderItem(
-                    player,
-                    item,
-                    ModelTransformationMode.FIRST_PERSON_LEFT_HAND,
-                    true,
-                    matrices,
-                    vertexConsumers,
-                    light
-            );
+
+            boolean isRightDominant = player.getMainArm() == Arm.RIGHT;
+            // Dla off-hand, gdy gracz jest praworęczny, off-hand to lewa ręka modelu i odwrotnie
+            ModelTransformationMode mode = isRightDominant
+                    ? ModelTransformationMode.FIRST_PERSON_LEFT_HAND
+                    : ModelTransformationMode.FIRST_PERSON_RIGHT_HAND;
+
+            self.renderItem(player, stack, mode, isRightDominant, matrices, vertexConsumers, light);
         }
+
+        matrices.pop();
     }
 
-    @Unique
-    private void applyRightHandAttackTransform(SwingStyle style, MatrixStack matrices, float swingProgress) {
-        float swingRadians = swingProgress * (float) Math.PI;
-        float swingSin = MathHelper.sin(swingRadians);
+    /**
+     * Customowa animacja dla MainHand – pozostaje podobna do poprzednich wersji.
+     */
+    private void applyCustomMainHandSwing(MatrixStack matrices, float swingProgress, SwingStyle style) {
+        float rad = swingProgress * (float) Math.PI;
+        float sin = MathHelper.sin(rad);
         switch (style) {
             case BASIC_SWING -> {
                 matrices.translate(0.4, -0.25, -0.6);
                 matrices.scale(0.50F, 0.50F, 0.50F);
-                float angleX = -95.0F * swingSin;
-                float angleY = 35.0F * swingSin;
+                float angleX = -95.0F * sin;
+                float angleY = 35.0F * sin;
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(angleX));
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(angleY));
             }
             case BASIC_CLAP -> {
                 matrices.translate(0.4, -0.25, -0.6);
                 matrices.scale(0.50F, 0.50F, 0.50F);
-                float angleX = -85.0F * swingSin;
-                float angleY = -110.0F * swingSin;
+                float angleX = -85.0F * sin;
+                float angleY = -110.0F * sin;
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(angleX));
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(angleY));
             }
             case SWIPE_IN -> {
                 matrices.translate(1.3, -0.7, -2.6);
                 matrices.scale(1.4F, 1.4F, 1.4F);
-                float angleY = -60.0F - 60.0F * swingSin;
-                float angleZ = 75.0F - 0.3F * swingSin * 10f;
+                float angleY = -60.0F - 60.0F * sin;
+                float angleZ = 75.0F - 0.3F * sin * 10f;
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(angleY));
                 matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angleZ));
             }
             case SWIPE_OUT -> {
                 matrices.translate(1.3, -0.7, -2.6);
                 matrices.scale(1.4F, 1.4F, 1.4F);
-                float angleY = -60.0F + 60.0F * swingSin;
-                float angleZ = 75.0F + 2F * swingSin * 10f;
+                float angleY = -60.0F + 60.0F * sin;
+                float angleZ = 75.0F + 2F * sin * 10f;
                 matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(angleY));
                 matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angleZ));
             }
@@ -127,23 +133,31 @@ public abstract class CustomSwingHandMixin {
         }
     }
 
-    @Unique
+    /**
+     * Transformacja dla off-hand w trybie statycznym.
+     */
     private void applyLeftHandStaticTransform(MatrixStack matrices) {
-        matrices.translate(-2.0f, -0.4f, -0.9f);
-        matrices.scale(0.8f, 0.8f, 0.8f);
+        matrices.translate(-0.62f, -0.5f, -0.95f);
+        matrices.scale(0.7f, 0.7f, 0.7f);
     }
 
-    @Unique
+    /**
+     * Transformacja dla off-hand przy używaniu przedmiotu (np. jedzenie).
+     */
     private void applyLeftHandEatTransform(MatrixStack matrices, ItemStack item, AbstractClientPlayerEntity player) {
         float timeLeft = player.getItemUseTimeLeft();
         float maxTime = item.getMaxUseTime(player);
         float progress = 1.0F - timeLeft / maxTime;
-        float sin = MathHelper.sin(progress * (float) Math.PI);
-        matrices.translate(-1.7f, -0.5f, -0.8f);
+        float speedFactor = 1.5F;
+        float adjustedProgress = Math.min(progress * speedFactor, 1.0F);
+        float sin = MathHelper.sin(adjustedProgress * (float) Math.PI);
+
+        matrices.translate(-0.62f, -0.6f, -0.8f);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(40.0F));
-        matrices.translate(0.0f, sin * 0.1f, 0.0f);
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(sin * -20.0F));
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(sin * -10.0F));
-        matrices.scale(0.9f, 0.9f, 0.9f);
+        matrices.translate(0.0f, sin * 0.07f, 0.0f);
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(sin * -15.0F));
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(sin * -7.0F));
+        matrices.scale(0.7f, 0.7f, 0.7f);
     }
 }
+
