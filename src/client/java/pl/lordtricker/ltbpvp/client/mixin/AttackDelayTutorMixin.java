@@ -1,9 +1,12 @@
 package pl.lordtricker.ltbpvp.client.mixin;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
+import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.hit.HitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -33,6 +36,11 @@ public abstract class AttackDelayTutorMixin {
             return;
         }
 
+        HitResult hitResult = MinecraftClient.getInstance().crosshairTarget;
+        if (!(hitResult instanceof EntityHitResult)) {
+            return;
+        }
+
         long currentTime = System.currentTimeMillis();
         if (!hasAttackedOnce) {
             hasAttackedOnce = true;
@@ -43,7 +51,7 @@ public abstract class AttackDelayTutorMixin {
         long delta = currentTime - lastSwingTime;
         lastSwingTime = currentTime;
 
-        float attackSpeed = (float) player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED);
+        float attackSpeed = (float) player.getAttributeValue(EntityAttributes.ATTACK_SPEED);
         float cooldownTicks = 20.0F / attackSpeed;
         long cooldownMs = (long)(cooldownTicks * 50);
 

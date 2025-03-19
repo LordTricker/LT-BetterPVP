@@ -2,13 +2,14 @@ package pl.lordtricker.ltbpvp.client.mixin;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.render.*;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.util.TriState;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.Identifier;
@@ -37,7 +38,7 @@ public class TargetCrosshairMixin {
         if (target == null) {
             return;
         }
-        double reachDistance = client.player.getAttributeValue(EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE);
+        double reachDistance = client.player.getAttributeValue(EntityAttributes.ENTITY_INTERACTION_RANGE);
         double distanceSq = client.player.squaredDistanceTo(target);
         if (distanceSq > reachDistance * reachDistance) {
             return;
@@ -54,37 +55,23 @@ public class TargetCrosshairMixin {
         int centerY = screenHeight / 2;
 
         int size = ModSettings.targetRange;
-
         float angle = (System.currentTimeMillis() % 36000L) / 100.0F;
 
-        float red = 1.0F, green = 1.0F, blue = 1.0F;
+        int color = 0xFF000000;
         switch (ModSettings.crosshairColor) {
-            case YELLOW -> {
-                red = 1.0F; green = 1.0F; blue = 0.0F;
-            }
-            case RED -> {
-                red = 1.0F; green = 0.0F; blue = 0.0F;
-            }
-            case LIGHT_BLUE -> {
-                red = 0.5F; green = 0.7F; blue = 1.0F;
-            }
-            case ORANGE -> {
-                red = 1.0F; green = 0.5F; blue = 0.0F;
-            }
-            case GREEN -> {
-                red = 0.0F; green = 1.0F; blue = 0.0F;
-            }
-            case WHITE -> {
-                red = 1.0F; green = 1.0F; blue = 1.0F;
-            }
-            case PURPLE -> {
-                red = 1.0F; green = 0.0F; blue = 1.0F;
-            }
+            case YELLOW -> color = 0xFFFFFF00;
+            case RED -> color = 0xFFFF0000;
+            case LIGHT_BLUE -> color = 0xFF7FAAFF;
+            case ORANGE -> color = 0xFFFF8000;
+            case GREEN -> color = 0xFF00FF00;
+            case WHITE -> color = 0xFFFFFFFF;
+            case PURPLE -> color = 0xFFFF00FF;
             case RGB -> {
-                float time = ((System.currentTimeMillis() % 2000L) / 2000.0F) * (float)Math.PI * 2.0F;
-                red   = 0.5F + 0.5F * (float)Math.sin(time);
-                green = 0.5F + 0.5F * (float)Math.sin(time + (2 * Math.PI / 3));
-                blue  = 0.5F + 0.5F * (float)Math.sin(time + (4 * Math.PI / 3));
+                float time = ((System.currentTimeMillis() % 2000L) / 2000.0F) * (float) Math.PI * 2.0F;
+                int r = (int) ((0.5F + 0.5F * Math.sin(time)) * 255);
+                int g = (int) ((0.5F + 0.5F * Math.sin(time + (2 * Math.PI / 3))) * 255);
+                int b = (int) ((0.5F + 0.5F * Math.sin(time + (4 * Math.PI / 3))) * 255);
+                color = 0xFF000000 | (r << 16) | (g << 8) | b;
             }
         }
 
@@ -92,19 +79,40 @@ public class TargetCrosshairMixin {
         matrices.translate(centerX, centerY, 0);
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angle));
 
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-        RenderSystem.setShaderColor(red, green, blue, 1.0F);
-
         Identifier texture = ModSettings.targetStyle.getTexture();
-        RenderSystem.setShaderTexture(0, texture);
 
-        context.drawTexture(texture, -size / 2, -size / 2, 0, 0, size, size, size, size);
+        RenderLayer renderLayer = RenderLayer.of(
+                "target_crosshair",
+                VertexFormats.POSITION_TEXTURE_COLOR,
+                VertexFormat.DrawMode.QUADS,
+                256,
+                false,
+                true,
+                RenderLayer.MultiPhaseParameters.builder()
+                        .program(new RenderPhase.ShaderProgram(ShaderProgramKeys.POSITION_TEX_COLOR))
+                        .texture(new RenderPhase.Texture(texture, TriState.FALSE, false))
+                        .transparency(RenderPhase.Transparency.TRANSLUCENT_TRANSPARENCY)
+                        .lightmap(RenderPhase.Lightmap.DISABLE_LIGHTMAP)
+                        .overlay(RenderPhase.Overlay.DISABLE_OVERLAY_COLOR)
+                        .cull(RenderPhase.Cull.DISABLE_CULLING)
+                        .depthTest(RenderPhase.DepthTest.ALWAYS_DEPTH_TEST)
+                        .build(true)
+        );
 
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.disableBlend();
+        context.drawTexture(
+                identifier -> renderLayer,
+                texture,
+                -size/2,
+                -size/2,
+                0f,
+                0f,
+                size,
+                size,
+                size,
+                size,
+                color
+        );
+
         matrices.pop();
     }
-
 }
