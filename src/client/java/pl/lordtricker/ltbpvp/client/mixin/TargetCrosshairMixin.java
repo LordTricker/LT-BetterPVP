@@ -9,7 +9,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -82,10 +82,10 @@ public class TargetCrosshairMixin {
         }
         matrices.push();
         matrices.translate(centerX, centerY, 0);
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angle));
+        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(angle));
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(red, green, blue, 1.0F);
         Identifier texture = ModSettings.targetStyle.getTexture();
         RenderSystem.setShaderTexture(0, texture);
@@ -93,5 +93,6 @@ public class TargetCrosshairMixin {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableBlend();
         matrices.pop();
+
     }
 }

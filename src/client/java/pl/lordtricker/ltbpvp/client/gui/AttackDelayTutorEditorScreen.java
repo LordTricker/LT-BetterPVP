@@ -23,31 +23,43 @@ public class AttackDelayTutorEditorScreen extends Screen {
         int centerX = this.width / 2;
         int startY = this.height / 3;
 
-        soundToggleButton = ButtonWidget.builder(
+        soundToggleButton = new ButtonWidget(
+                centerX - 75,
+                startY,
+                150,
+                20,
                 Text.of("Sound: " + (ModSettings.attackDelayTutorSoundEnabled ? "ON" : "OFF")),
                 button -> {
                     ModSettings.attackDelayTutorSoundEnabled = !ModSettings.attackDelayTutorSoundEnabled;
                     button.setMessage(Text.of("Sound: " + (ModSettings.attackDelayTutorSoundEnabled ? "ON" : "OFF")));
                 }
-        ).dimensions(centerX - 75, startY, 150, 20).build();
+        );
         addDrawableChild(soundToggleButton);
 
-        textToggleButton = ButtonWidget.builder(
+        textToggleButton = new ButtonWidget(
+                centerX - 75,
+                startY + 30,
+                150,
+                20,
                 Text.of("Text: " + (ModSettings.attackDelayTutorTextEnabled ? "ON" : "OFF")),
                 button -> {
                     ModSettings.attackDelayTutorTextEnabled = !ModSettings.attackDelayTutorTextEnabled;
                     button.setMessage(Text.of("Text: " + (ModSettings.attackDelayTutorTextEnabled ? "ON" : "OFF")));
                 }
-        ).dimensions(centerX - 75, startY + 30, 150, 20).build();
+        );
         addDrawableChild(textToggleButton);
 
-        backButton = ButtonWidget.builder(
+        backButton = new ButtonWidget(
+                centerX - 50,
+                this.height - 40,
+                100,
+                20,
                 Text.of("Save and Back"),
                 button -> {
                     ModSettings.save();
                     this.client.setScreen(parentScreen);
                 }
-        ).dimensions(centerX - 50, this.height - 40, 100, 20).build();
+        );
         addDrawableChild(backButton);
     }
 

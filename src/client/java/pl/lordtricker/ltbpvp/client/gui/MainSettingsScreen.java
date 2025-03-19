@@ -35,7 +35,7 @@ public class MainSettingsScreen extends Screen {
         rowHeight = 25;
         int btnHeight = 20;
 
-        int totalLines = 6;
+        int totalLines = 5;
         int totalBlockHeight = totalLines * rowHeight;
         this.startY = (this.height - totalBlockHeight) / 2;
 
@@ -44,42 +44,58 @@ public class MainSettingsScreen extends Screen {
         int buttonX = groupLeft + labelAreaWidth + spacing;
 
         int tutorButtonY = startY;
-        attackTutorButton = ButtonWidget.builder(
+        attackTutorButton = new ButtonWidget(
+                buttonX,
+                tutorButtonY,
+                80,
+                btnHeight,
                 Text.of(ModSettings.attackDelayTutorEnabled ? "ON" : "OFF"),
-                btn -> {
+                button -> {
                     ModSettings.attackDelayTutorEnabled = !ModSettings.attackDelayTutorEnabled;
-                    btn.setMessage(Text.of(ModSettings.attackDelayTutorEnabled ? "ON" : "OFF"));
+                    button.setMessage(Text.of(ModSettings.attackDelayTutorEnabled ? "ON" : "OFF"));
                 }
-        ).dimensions(buttonX, tutorButtonY, 80, btnHeight).build();
+        );
         addDrawableChild(attackTutorButton);
 
-        attackTutorEditButton = ButtonWidget.builder(
+        attackTutorEditButton = new ButtonWidget(
+                buttonX + 80,
+                tutorButtonY,
+                20,
+                btnHeight,
                 Text.of("..."),
-                btn -> {
+                button -> {
                     assert this.client != null;
                     this.client.setScreen(new AttackDelayTutorEditorScreen(this));
                 }
-        ).dimensions(buttonX + 80, tutorButtonY, 20, btnHeight).build();
+        );
         addDrawableChild(attackTutorEditButton);
 
         int line1Y = startY + rowHeight; // Sword Animation
-        ButtonWidget animationsToggleButton = ButtonWidget.builder(
+        ButtonWidget animationsToggleButton = new ButtonWidget(
+                buttonX,
+                line1Y,
+                80,
+                btnHeight,
                 Text.of(getToggleDisplay(animationsEnabled)),
-                btn -> {
+                button -> {
                     animationsEnabled = !animationsEnabled;
-                    btn.setMessage(Text.of(getToggleDisplay(animationsEnabled)));
+                    button.setMessage(Text.of(getToggleDisplay(animationsEnabled)));
                     animationsEditButton.active = animationsEnabled;
                 }
-        ).dimensions(buttonX, line1Y, 80, btnHeight).build();
+        );
         addDrawableChild(animationsToggleButton);
 
-        animationsEditButton = ButtonWidget.builder(
+        animationsEditButton = new ButtonWidget(
+                buttonX + 80,
+                line1Y,
+                20,
+                btnHeight,
                 Text.of("..."),
-                btn -> {
+                button -> {
                     assert this.client != null;
                     this.client.setScreen(new AnimationEditorScreen(this));
                 }
-        ).dimensions(buttonX + 80, line1Y, 20, btnHeight).build();
+        );
         addDrawableChild(animationsEditButton);
 
         if (!animationsEnabled) {
@@ -87,23 +103,31 @@ public class MainSettingsScreen extends Screen {
         }
 
         int line2Y = startY + 2 * rowHeight; // Cursor ESP
-        ButtonWidget targetingToggleButton = ButtonWidget.builder(
+        ButtonWidget targetingToggleButton = new ButtonWidget(
+                buttonX,
+                line2Y,
+                80,
+                btnHeight,
                 Text.of(getToggleDisplay(targetingEnabled)),
-                btn -> {
+                button -> {
                     targetingEnabled = !targetingEnabled;
-                    btn.setMessage(Text.of(getToggleDisplay(targetingEnabled)));
+                    button.setMessage(Text.of(getToggleDisplay(targetingEnabled)));
                     targetingEditButton.active = targetingEnabled;
                 }
-        ).dimensions(buttonX, line2Y, 80, btnHeight).build();
+        );
         addDrawableChild(targetingToggleButton);
 
-        targetingEditButton = ButtonWidget.builder(
+        targetingEditButton = new ButtonWidget(
+                buttonX + 80,
+                line2Y,
+                20,
+                btnHeight,
                 Text.of("..."),
-                btn -> {
+                button -> {
                     assert this.client != null;
                     this.client.setScreen(new TargetEditorScreen(this));
                 }
-        ).dimensions(buttonX + 80, line2Y, 20, btnHeight).build();
+        );
         addDrawableChild(targetingEditButton);
 
         if (!targetingEnabled) {
@@ -113,7 +137,6 @@ public class MainSettingsScreen extends Screen {
         MinecraftSettingsWidget mcSettingsWidget = new MinecraftSettingsWidget();
         int mcSettingsY = startY + 3 * rowHeight;
         mcSettingsWidget.initWidgets(buttonX, mcSettingsY, buttonAreaWidth, btnHeight, rowHeight);
-
         for (ButtonWidget b : mcSettingsWidget.getWidgets()) {
             addDrawableChild(b);
         }
@@ -121,16 +144,19 @@ public class MainSettingsScreen extends Screen {
         int centerX = this.width / 2;
         int saveBtnWidth = 100;
         int saveBtnX = centerX - saveBtnWidth / 2;
-
-        ButtonWidget saveButton = ButtonWidget.builder(
+        ButtonWidget saveButton = new ButtonWidget(
+                saveBtnX,
+                this.height - 30,
+                saveBtnWidth,
+                btnHeight,
                 Text.of("Save and Quit"),
-                btn -> {
+                button -> {
                     ModSettings.animationsEnabled = animationsEnabled;
                     ModSettings.targetingEnabled = targetingEnabled;
                     ModSettings.save();
                     this.close();
                 }
-        ).dimensions(saveBtnX, this.height - 30, saveBtnWidth, btnHeight).build();
+        );
         addDrawableChild(saveButton);
     }
 
@@ -152,7 +178,6 @@ public class MainSettingsScreen extends Screen {
         this.textRenderer.draw(matrices, "Cursor ESP:", labelX, startY + 2 * rowHeight + 5, 0xFFFFFF);
         this.textRenderer.draw(matrices, "Auto Jump:", labelX, startY + 3 * rowHeight + 5, 0xFFFFFF);
         this.textRenderer.draw(matrices, "View Bobbing:", labelX, startY + 4 * rowHeight + 5, 0xFFFFFF);
-        this.textRenderer.draw(matrices, "Screen Shake:", labelX, startY + 5 * rowHeight + 5, 0xFFFFFF);
     }
 
     private void drawCenteredTextLocal(MatrixStack matrices, Text text, int y, int color) {

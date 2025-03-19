@@ -39,24 +39,32 @@ public class TargetEditorScreen extends Screen {
         this.startY = (this.height - totalBlockHeight) / 2;
 
         int line1Y = startY;
-        targetStyleButton = ButtonWidget.builder(
+        targetStyleButton = new ButtonWidget(
+                centerX - widgetWidth / 2,
+                line1Y,
+                widgetWidth,
+                widgetHeight,
                 Text.of("Style: " + getTargetStyleDisplay(ModSettings.targetStyle)),
                 button -> {
                     ModSettings.targetStyle = getNextTargetStyle(ModSettings.targetStyle);
                     button.setMessage(Text.of("Style: " + getTargetStyleDisplay(ModSettings.targetStyle)));
                 }
-        ).dimensions(centerX - widgetWidth / 2, line1Y, widgetWidth, widgetHeight).build();
+        );
         addDrawableChild(targetStyleButton);
 
         int line2Y = startY + rowSpacing;
-        colorButton = ButtonWidget.builder(
+        colorButton = new ButtonWidget(
+                centerX - widgetWidth / 2,
+                line2Y,
+                widgetWidth,
+                widgetHeight,
                 Text.of("Color: " + ModSettings.crosshairColor.name()),
-                btn -> {
+                button -> {
                     CrosshairColor next = getNextColor(ModSettings.crosshairColor);
                     ModSettings.crosshairColor = next;
-                    btn.setMessage(Text.of("Color: " + next.name()));
+                    button.setMessage(Text.of("Color: " + next.name()));
                 }
-        ).dimensions(centerX - widgetWidth / 2, line2Y, widgetWidth, widgetHeight).build();
+        );
         addDrawableChild(colorButton);
 
         int line3Y = startY + 2 * rowSpacing;
@@ -72,27 +80,34 @@ public class TargetEditorScreen extends Screen {
         addDrawableChild(rangeSlider);
 
         int line4Y = startY + 3 * rowSpacing + 10;
-        resetButton = ButtonWidget.builder(
+        resetButton = new ButtonWidget(
+                centerX - widgetWidth / 2,
+                line4Y + 5,
+                widgetWidth,
+                widgetHeight,
                 Text.of("Reset"),
                 button -> {
                     double defValue = (32 - 16) / 32.0;
                     rangeSlider.setSliderValue(defValue);
-
                     ModSettings.crosshairColor = CrosshairColor.RGB;
                     colorButton.setMessage(Text.of("Color: RGB"));
                 }
-        ).dimensions(centerX - widgetWidth / 2, line4Y + 5, widgetWidth, widgetHeight).build();
+        );
         addDrawableChild(resetButton);
 
         int backBtnWidth = 100;
         int backBtnX = centerX - backBtnWidth / 2;
-        backButton = ButtonWidget.builder(
+        backButton = new ButtonWidget(
+                backBtnX,
+                this.height - 30,
+                backBtnWidth,
+                widgetHeight,
                 Text.of("Save"),
                 button -> {
                     ModSettings.targetRange = (int) (16 + rangeSlider.getSliderValue() * 32);
                     this.client.setScreen(parentScreen);
                 }
-        ).dimensions(backBtnX, this.height - 30, backBtnWidth, widgetHeight).build();
+        );
         addDrawableChild(backButton);
     }
 
@@ -120,7 +135,7 @@ public class TargetEditorScreen extends Screen {
     }
 
     /**
-     * Rysuje wycentrowany tekst na zadanym Y (tu: 10).
+     * Rysuje wycentrowany tekst na zadanym Y.
      */
     private void drawCenteredTextLocal(MatrixStack matrices, Text text, int y, int color) {
         int textWidth = this.textRenderer.getWidth(text);

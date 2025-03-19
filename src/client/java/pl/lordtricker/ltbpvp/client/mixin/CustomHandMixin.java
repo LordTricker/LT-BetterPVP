@@ -3,13 +3,13 @@ package pl.lordtricker.ltbpvp.client.mixin;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
+import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -59,9 +59,9 @@ public abstract class CustomHandMixin {
                 }
             }
             boolean isRightDominant = player.getMainArm() == Arm.RIGHT;
-            ModelTransformationMode mode = isRightDominant
-                    ? ModelTransformationMode.FIRST_PERSON_RIGHT_HAND
-                    : ModelTransformationMode.FIRST_PERSON_LEFT_HAND;
+            ModelTransformation.Mode mode = isRightDominant
+                    ? ModelTransformation.Mode.FIRST_PERSON_RIGHT_HAND
+                    : ModelTransformation.Mode.FIRST_PERSON_LEFT_HAND;
             self.renderItem(player, stack, mode, !isRightDominant, matrices, vertexConsumers, light);
         } else if (hand == Hand.OFF_HAND) {
             if (player.isUsingItem() && player.getActiveHand() == Hand.OFF_HAND) {
@@ -70,18 +70,15 @@ public abstract class CustomHandMixin {
                 applyLeftHandStaticTransform(matrices);
             }
             boolean isRightDominant = player.getMainArm() == Arm.RIGHT;
-            ModelTransformationMode mode = isRightDominant
-                    ? ModelTransformationMode.FIRST_PERSON_LEFT_HAND
-                    : ModelTransformationMode.FIRST_PERSON_RIGHT_HAND;
+            ModelTransformation.Mode mode = isRightDominant
+                    ? ModelTransformation.Mode.FIRST_PERSON_LEFT_HAND
+                    : ModelTransformation.Mode.FIRST_PERSON_RIGHT_HAND;
             self.renderItem(player, stack, mode, isRightDominant, matrices, vertexConsumers, light);
         }
 
         matrices.pop();
     }
 
-    /**
-     * Customowa animacja dla MainHand – pozostaje podobna do poprzednich wersji.
-     */
     private void applyCustomMainHandSwing(MatrixStack matrices, float swingProgress, SwingStyle style) {
         float rad = swingProgress * (float) Math.PI;
         float sin = MathHelper.sin(rad);
@@ -91,32 +88,32 @@ public abstract class CustomHandMixin {
                 matrices.scale(0.50F, 0.50F, 0.50F);
                 float angleX = -95.0F * sin;
                 float angleY = 35.0F * sin;
-                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(angleX));
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(angleY));
+                matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(angleX));
+                matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(angleY));
             }
             case BASIC_CLAP -> {
                 matrices.translate(0.4, -0.25, -0.6);
                 matrices.scale(0.50F, 0.50F, 0.50F);
                 float angleX = -85.0F * sin;
                 float angleY = -110.0F * sin;
-                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(angleX));
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(angleY));
+                matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(angleX));
+                matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(angleY));
             }
             case SWIPE_IN -> {
                 matrices.translate(1.3, -0.7, -2.6);
                 matrices.scale(1.4F, 1.4F, 1.4F);
                 float angleY = -60.0F - 60.0F * sin;
                 float angleZ = 75.0F - 0.3F * sin * 10f;
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(angleY));
-                matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angleZ));
+                matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(angleY));
+                matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(angleZ));
             }
             case SWIPE_OUT -> {
                 matrices.translate(1.3, -0.7, -2.6);
                 matrices.scale(1.4F, 1.4F, 1.4F);
                 float angleY = -60.0F + 60.0F * sin;
                 float angleZ = 75.0F + 2F * sin * 10f;
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(angleY));
-                matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angleZ));
+                matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(angleY));
+                matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(angleZ));
             }
             case NO_SWING -> {
                 matrices.translate(0.4, -0.25, -0.6);
@@ -134,24 +131,18 @@ public abstract class CustomHandMixin {
         float sin = MathHelper.sin(adjustedProgress * (float) Math.PI);
 
         matrices.translate(0.56f, -0.5f, -0.8f);
-        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-40.0F));
+        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(-40.0F));
         matrices.translate(0.0f, sin * 0.1f, 0.0f);
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(sin * 20.0F));
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(sin * 10.0F));
+        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(sin * 20.0F));
+        matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(sin * 10.0F));
         matrices.scale(0.7f, 0.7f, 0.7f);
     }
 
-    /**
-     * Transformacja dla off-hand w trybie statycznym.
-     */
     private void applyLeftHandStaticTransform(MatrixStack matrices) {
         matrices.translate(-0.62f, -0.5f, -0.95f);
         matrices.scale(0.7f, 0.7f, 0.7f);
     }
 
-    /**
-     * Transformacja dla off-hand przy używaniu przedmiotu (np. jedzenie).
-     */
     private void applyLeftHandEatTransform(MatrixStack matrices, ItemStack item, AbstractClientPlayerEntity player) {
         float timeLeft = player.getItemUseTimeLeft();
         float maxTime = item.getMaxUseTime();
@@ -161,10 +152,10 @@ public abstract class CustomHandMixin {
         float sin = MathHelper.sin(adjustedProgress * (float) Math.PI);
 
         matrices.translate(-0.62f, -0.6f, -0.8f);
-        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(40.0F));
+        matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(40.0F));
         matrices.translate(0.0f, sin * 0.07f, 0.0f);
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(sin * -15.0F));
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(sin * -7.0F));
+        matrices.multiply(Vec3f.POSITIVE_Z.getDegreesQuaternion(sin * -15.0F));
+        matrices.multiply(Vec3f.POSITIVE_X.getDegreesQuaternion(sin * -7.0F));
         matrices.scale(0.7f, 0.7f, 0.7f);
     }
 }
