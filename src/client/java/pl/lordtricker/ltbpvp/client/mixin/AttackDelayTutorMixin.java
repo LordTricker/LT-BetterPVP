@@ -1,9 +1,12 @@
 package pl.lordtricker.ltbpvp.client.mixin;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
+import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.hit.HitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,14 +25,18 @@ public abstract class AttackDelayTutorMixin {
 
     /**
      * Wstrzyknięcie do metody swingHand.
-     * Oblicza narzędziowy cooldown na podstawie atrybutu ATTACK_SPEED i mierzy odstęp między swingami.
-     * Jeśli atak został wykonany przed zakończeniem cooldownu, to (w zależności od ustawień)
-     * – wysyła komunikat HUD i/lub odtwarza dźwięk.
+     * Sprawdzamy, czy gracz celuje w encję. Jeśli tak, obliczamy cooldown na podstawie atrybutu ATTACK_SPEED.
+     * Jeśli odstęp między swingami jest mniejszy niż wymagany cooldown, wysyłamy komunikat HUD oraz odtwarzamy dźwięk.
      */
     @Inject(method = "swingHand", at = @At("HEAD"))
     private void onSwingHand(Hand hand, CallbackInfo ci) {
         ClientPlayerEntity player = (ClientPlayerEntity)(Object)this;
         if (!ModSettings.attackDelayTutorEnabled) {
+            return;
+        }
+
+        HitResult hitResult = MinecraftClient.getInstance().crosshairTarget;
+        if (!(hitResult instanceof EntityHitResult)) {
             return;
         }
 

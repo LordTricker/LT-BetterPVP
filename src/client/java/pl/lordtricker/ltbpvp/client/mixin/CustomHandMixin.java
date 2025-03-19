@@ -168,4 +168,3 @@ public abstract class CustomHandMixin {
         matrices.scale(0.7f, 0.7f, 0.7f);
     }
 }
-
