@@ -4,7 +4,7 @@
 **LT-BetterPVP** to mod dedykowany rozgrywce PvP, który wzbogaca doświadczenie gracza o niestandardowe animacje, ulepszone celowanie oraz dodatkowe funkcje informacyjne. Mod wprowadza między innymi:
 - **Custom Sword Animation** – unikalne animacje miecza w różnych stylach, dzięki którym Twoje uderzenia wyglądają imponująco.
 - **Attack Delay Tutor** – system ostrzegający, gdy atak zostanie wykonany zbyt szybko (przed pełnym naładowaniem ataku). Ostrzeżenie wyświetlane jest pod celownikiem w postaci tekstu (z możliwością wyłączenia) oraz odtwarzany jest dźwięk (również opcjonalnie).
-- **Targeting & Cursor ESP** – dodatkowe opcje wizualne ułatwiające celowanie.
+- **Cursor ESP** – dodatkowe opcje wizualne ułatwiające celowanie.
 - **Inne ustawienia gry** – m.in. Auto Jump, View Bobbing, Screen Shake i Full Bright.
 
 Mod automatycznie zapisuje ustawienia do pliku konfiguracyjnego, dzięki czemu przy kolejnych uruchomieniach gry zachowuje Twoje preferencje.
@@ -14,7 +14,7 @@ Mod automatycznie zapisuje ustawienia do pliku konfiguracyjnego, dzięki czemu p
 - **Attack Delay Tutor** – informuje gracza o zbyt szybkim ataku:
     - *Tekst*: wyświetlany pod celownikiem (możliwość włączenia/wyłączenia).
     - *Dźwięk*: odtwarzany przy zbyt szybkim ataku (możliwość włączenia/wyłączenia).
-- **Targeting & Cursor ESP** – opcje graficzne poprawiające celowanie.
+- **Cursor ESP** – opcje graficzne poprawiające celowanie.
 - **GUI ustawień** – intuicyjny interfejs graficzny umożliwiający edycję wszystkich opcji.
 - **Wsparcie komend** – szybki dostęp do informacji oraz konfiguracji moda poprzez komendy klienckie.
 - **Automatyczny zapis** – wszystkie zmiany są zapisywane do pliku konfiguracyjnego.
