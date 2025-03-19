@@ -7,10 +7,6 @@ import pl.lordtricker.ltbpvp.client.enums.TargetStyle;
 import java.util.EnumMap;
 import java.util.Map;
 
-/**
- * Główna klasa w pamięci (używana przez mixiny i GUI).
- * Zapisywana/odczytywana do pliku przez Config i ConfigLoader.
- */
 public class ModSettings {
     public static SwingStyle swingStyle = SwingStyle.BASIC_SWING;
     public static boolean animationsEnabled = true;
@@ -25,6 +21,10 @@ public class ModSettings {
     public static int targetRange = 24;
 
     public static final Map<SwingStyle, AnimationOffsets> styleOffsets = new EnumMap<>(SwingStyle.class);
+
+    public static boolean attackDelayTutorEnabled = false;
+    public static boolean attackDelayTutorSoundEnabled = true;
+    public static boolean attackDelayTutorTextEnabled = true;
 
     static {
         for (SwingStyle style : SwingStyle.values()) {
@@ -44,27 +44,18 @@ public class ModSettings {
         }
     }
 
-    /**
-     * Wywoływane, kiedy chcemy zapisać aktualne ustawienia do pliku JSON.
-     */
     public static void save() {
         Config cfg = toConfig();
         ConfigLoader.saveConfig(cfg);
         System.out.println("[ModSettings] Saved -> ltbetterpvp-config.json");
     }
 
-    /**
-     * Wywoływane, kiedy chcemy wczytać ustawienia z pliku JSON.
-     */
     public static void load() {
         Config cfg = ConfigLoader.loadConfig();
         applyFrom(cfg);
         System.out.println("[ModSettings] Loaded <- ltbetterpvp-config.json");
     }
 
-    /**
-     * Tworzy obiekt Config na podstawie aktualnych wartości ModSettings.
-     */
     public static Config toConfig() {
         Config cfg = new Config();
         cfg.animationsEnabled = animationsEnabled;
@@ -77,6 +68,9 @@ public class ModSettings {
         cfg.targetStyle = targetStyle;
         cfg.targetRange = targetRange;
         cfg.crosshairColor = crosshairColor;
+        cfg.attackDelayTutorEnabled = attackDelayTutorEnabled;
+        cfg.attackDelayTutorSoundEnabled = attackDelayTutorSoundEnabled;
+        cfg.attackDelayTutorTextEnabled = attackDelayTutorTextEnabled;
 
         for (SwingStyle style : styleOffsets.keySet()) {
             AnimationOffsets moff = styleOffsets.get(style);
@@ -88,9 +82,6 @@ public class ModSettings {
         return cfg;
     }
 
-    /**
-     * Ustawia pola ModSettings na podstawie obiektu Config wczytanego z pliku.
-     */
     public static void applyFrom(Config cfg) {
         animationsEnabled = cfg.animationsEnabled;
         targetingEnabled = cfg.targetingEnabled;
@@ -102,6 +93,9 @@ public class ModSettings {
         targetStyle = cfg.targetStyle;
         targetRange = cfg.targetRange;
         crosshairColor = cfg.crosshairColor;
+        attackDelayTutorEnabled = cfg.attackDelayTutorEnabled;
+        attackDelayTutorSoundEnabled = cfg.attackDelayTutorSoundEnabled;
+        attackDelayTutorTextEnabled = cfg.attackDelayTutorTextEnabled;
 
         for (SwingStyle style : cfg.styleOffsets.keySet()) {
             Config.AnimationOffsets coff = cfg.styleOffsets.get(style);

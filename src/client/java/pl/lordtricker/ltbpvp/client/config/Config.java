@@ -7,10 +7,6 @@ import pl.lordtricker.ltbpvp.client.enums.TargetStyle;
 import java.util.EnumMap;
 import java.util.Map;
 
-/**
- * Prosty POJO do zapisywania i odczytywania z/do JSON-a.
- * Zawiera pola odpowiadające ModSettings.
- */
 public class Config {
 
     public boolean animationsEnabled = true;
@@ -25,17 +21,12 @@ public class Config {
     public TargetStyle targetStyle = TargetStyle.CIRCLE_GAP;
     public int targetRange = 24;
 
+    public boolean attackDelayTutorEnabled = false;
+    public boolean attackDelayTutorSoundEnabled = true;
+    public boolean attackDelayTutorTextEnabled = true;
+
     public Map<SwingStyle, AnimationOffsets> styleOffsets = new EnumMap<>(SwingStyle.class);
 
-    public static class AnimationOffsets {
-        public float offsetX;
-        public float offsetY;
-        public float offsetZ;
-    }
-
-    /**
-     * Konstruktor ustawia domyślne offsety dla wszystkich stylów.
-     */
     public Config() {
         for (SwingStyle style : SwingStyle.values()) {
             AnimationOffsets off = new AnimationOffsets();
@@ -44,5 +35,11 @@ public class Config {
             off.offsetZ = 0.0f;
             styleOffsets.put(style, off);
         }
+    }
+
+    public static class AnimationOffsets {
+        public float offsetX;
+        public float offsetY;
+        public float offsetZ;
     }
 }

@@ -4,7 +4,9 @@
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"CustomHandMixin",
-		"TargetCrosshairMixin"
+		"TargetCrosshairMixin",
+		"AttackDelayTutorMixin",
+		"AttackDelayTutorHudMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

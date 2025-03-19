@@ -39,11 +39,9 @@ public abstract class CustomHandMixin {
             int light,
             CallbackInfo ci
     ) {
-        // Jeśli animacje globalnie wyłączone – nic nie zmieniamy
         if (!ModSettings.animationsEnabled) {
             return;
         }
-        // Anulujemy vanilla render dla obu rąk, aby mieć pełną kontrolę
         ci.cancel();
 
         matrices.push();
@@ -51,36 +49,30 @@ public abstract class CustomHandMixin {
         HeldItemRenderer self = (HeldItemRenderer)(Object) this;
 
         if (hand == Hand.MAIN_HAND) {
-            // === CUSTOMOWA ANIMACJA DLA MAIN_HAND ===
-            applyCustomMainHandSwing(matrices, swingProgress, ModSettings.swingStyle);
-
-            AnimationOffsets offsets = ModSettings.styleOffsets.get(ModSettings.swingStyle);
-            if (offsets != null) {
-                matrices.translate(offsets.offsetX, offsets.offsetY, offsets.offsetZ);
+            if (player.isUsingItem() && player.getActiveHand() == Hand.MAIN_HAND) {
+                applyMainHandEatTransform(matrices, stack, player);
+            } else {
+                applyCustomMainHandSwing(matrices, swingProgress, ModSettings.swingStyle);
+                AnimationOffsets offsets = ModSettings.styleOffsets.get(ModSettings.swingStyle);
+                if (offsets != null) {
+                    matrices.translate(offsets.offsetX, offsets.offsetY, offsets.offsetZ);
+                }
             }
-
             boolean isRightDominant = player.getMainArm() == Arm.RIGHT;
             ModelTransformationMode mode = isRightDominant
                     ? ModelTransformationMode.FIRST_PERSON_RIGHT_HAND
                     : ModelTransformationMode.FIRST_PERSON_LEFT_HAND;
-
             self.renderItem(player, stack, mode, !isRightDominant, matrices, vertexConsumers, light);
         } else if (hand == Hand.OFF_HAND) {
-            // === CUSTOMOWA ANIMACJA DLA OFF_HAND ===
-            // Jeśli gracz używa przedmiotu w off-hand (np. jedzenie), stosujemy transformację "eat"
             if (player.isUsingItem() && player.getActiveHand() == Hand.OFF_HAND) {
                 applyLeftHandEatTransform(matrices, stack, player);
             } else {
-                // W przeciwnym razie – statyczna transformacja
                 applyLeftHandStaticTransform(matrices);
             }
-
             boolean isRightDominant = player.getMainArm() == Arm.RIGHT;
-            // Dla off-hand, gdy gracz jest praworęczny, off-hand to lewa ręka modelu i odwrotnie
             ModelTransformationMode mode = isRightDominant
                     ? ModelTransformationMode.FIRST_PERSON_LEFT_HAND
                     : ModelTransformationMode.FIRST_PERSON_RIGHT_HAND;
-
             self.renderItem(player, stack, mode, isRightDominant, matrices, vertexConsumers, light);
         }
 
@@ -131,6 +123,22 @@ public abstract class CustomHandMixin {
                 matrices.scale(0.50F, 0.50F, 0.50F);
             }
         }
+    }
+
+    private void applyMainHandEatTransform(MatrixStack matrices, ItemStack item, AbstractClientPlayerEntity player) {
+        float timeLeft = player.getItemUseTimeLeft();
+        float maxTime = item.getMaxUseTime(player);
+        float progress = 1.0F - timeLeft / maxTime;
+        float speedFactor = 1.2F;
+        float adjustedProgress = Math.min(progress * speedFactor, 1.0F);
+        float sin = MathHelper.sin(adjustedProgress * (float) Math.PI);
+
+        matrices.translate(0.56f, -0.5f, -0.8f);
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-40.0F));
+        matrices.translate(0.0f, sin * 0.1f, 0.0f);
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(sin * 20.0F));
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(sin * 10.0F));
+        matrices.scale(0.7f, 0.7f, 0.7f);
     }
 
     /**
