@@ -1,8 +1,8 @@
 package pl.lordtricker.ltbpvp.client.gui;
 
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import pl.lordtricker.ltbpvp.client.config.ModSettings;
 
@@ -52,15 +52,15 @@ public class AttackDelayTutorEditorScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context);
-        super.render(context, mouseX, mouseY, delta);
-        drawCenteredText(context, this.title, 10, 0xFFFFFF);
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        this.renderBackground(matrices);
+        super.render(matrices, mouseX, mouseY, delta);
+        drawCenteredText(matrices, this.title, 10, 0xFFFFFF);
     }
 
-    private void drawCenteredText(DrawContext context, Text text, int y, int color) {
+    private void drawCenteredText(MatrixStack matrices, Text text, int y, int color) {
         int textWidth = this.textRenderer.getWidth(text);
         int x = (this.width - textWidth) / 2;
-        context.drawText(this.textRenderer, text, x, y, color, false);
+        this.textRenderer.drawWithShadow(matrices, text, (float) x, (float) y, color);
     }
 }

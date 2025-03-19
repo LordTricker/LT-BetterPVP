@@ -1,8 +1,8 @@
 package pl.lordtricker.ltbpvp.client.gui;
 
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import pl.lordtricker.ltbpvp.client.config.ModSettings;
 
@@ -139,28 +139,25 @@ public class MainSettingsScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context);
-        super.render(context, mouseX, mouseY, delta);
-        drawCenteredTextLocal(context, this.title, 10, 0xFFFFFF);
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        this.renderBackground(matrices);
+        super.render(matrices, mouseX, mouseY, delta);
+        drawCenteredTextLocal(matrices, this.title, 10, 0xFFFFFF);
 
         int totalGroupWidth = labelAreaWidth + spacing + buttonAreaWidth;
         int labelX = (this.width - totalGroupWidth) / 2;
 
-        context.drawText(this.textRenderer, "Attack delay tutor:", labelX, startY + 5, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Sword Animation:", labelX, startY + rowHeight + 5, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Cursor ESP:", labelX, startY + 2 * rowHeight + 5, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Auto Jump:", labelX, startY + 3 * rowHeight + 5, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "View Bobbing:", labelX, startY + 4 * rowHeight + 5, 0xFFFFFF, false);
-        context.drawText(this.textRenderer, "Screen Shake:", labelX, startY + 5 * rowHeight + 5, 0xFFFFFF, false);
+        this.textRenderer.draw(matrices, "Attack delay tutor:", labelX, startY + 5, 0xFFFFFF);
+        this.textRenderer.draw(matrices, "Sword Animation:", labelX, startY + rowHeight + 5, 0xFFFFFF);
+        this.textRenderer.draw(matrices, "Cursor ESP:", labelX, startY + 2 * rowHeight + 5, 0xFFFFFF);
+        this.textRenderer.draw(matrices, "Auto Jump:", labelX, startY + 3 * rowHeight + 5, 0xFFFFFF);
+        this.textRenderer.draw(matrices, "View Bobbing:", labelX, startY + 4 * rowHeight + 5, 0xFFFFFF);
+        this.textRenderer.draw(matrices, "Screen Shake:", labelX, startY + 5 * rowHeight + 5, 0xFFFFFF);
     }
 
-    /**
-     * Metoda rysująca wycentrowany tekst na zadanym Y.
-     */
-    private void drawCenteredTextLocal(DrawContext context, Text text, int y, int color) {
+    private void drawCenteredTextLocal(MatrixStack matrices, Text text, int y, int color) {
         int textWidth = this.textRenderer.getWidth(text);
         int x = (this.width - textWidth) / 2;
-        context.drawText(this.textRenderer, text, x, y, color, false);
+        this.textRenderer.draw(matrices, text, (float) x, (float) y, color);
     }
 }
