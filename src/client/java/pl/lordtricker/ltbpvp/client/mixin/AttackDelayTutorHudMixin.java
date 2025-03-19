@@ -3,7 +3,6 @@ package pl.lordtricker.ltbpvp.client.mixin;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -15,7 +14,7 @@ import pl.lordtricker.ltbpvp.client.hud.AttackDelayTutorHUD;
 public abstract class AttackDelayTutorHudMixin {
 
     @Inject(method = "renderCrosshair", at = @At("RETURN"))
-    private void renderAttackTutorMessage(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+    private void renderAttackTutorMessage(DrawContext context, CallbackInfo ci) {
         long currentTime = System.currentTimeMillis();
         if (AttackDelayTutorHUD.expirationTime > currentTime && !AttackDelayTutorHUD.message.isEmpty()) {
             MinecraftClient client = MinecraftClient.getInstance();

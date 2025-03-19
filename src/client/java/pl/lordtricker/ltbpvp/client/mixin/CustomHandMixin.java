@@ -127,7 +127,7 @@ public abstract class CustomHandMixin {
 
     private void applyMainHandEatTransform(MatrixStack matrices, ItemStack item, AbstractClientPlayerEntity player) {
         float timeLeft = player.getItemUseTimeLeft();
-        float maxTime = item.getMaxUseTime(player);
+        float maxTime = item.getMaxUseTime();
         float progress = 1.0F - timeLeft / maxTime;
         float speedFactor = 1.2F;
         float adjustedProgress = Math.min(progress * speedFactor, 1.0F);
@@ -154,7 +154,7 @@ public abstract class CustomHandMixin {
      */
     private void applyLeftHandEatTransform(MatrixStack matrices, ItemStack item, AbstractClientPlayerEntity player) {
         float timeLeft = player.getItemUseTimeLeft();
-        float maxTime = item.getMaxUseTime(player);
+        float maxTime = item.getMaxUseTime();
         float progress = 1.0F - timeLeft / maxTime;
         float speedFactor = 1.5F;
         float adjustedProgress = Math.min(progress * speedFactor, 1.0F);

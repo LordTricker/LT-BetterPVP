@@ -3,12 +3,10 @@ package pl.lordtricker.ltbpvp.client.mixin;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.Identifier;
@@ -23,7 +21,7 @@ import pl.lordtricker.ltbpvp.client.config.ModSettings;
 public class TargetCrosshairMixin {
 
     @Inject(method = "renderCrosshair", at = @At("RETURN"))
-    private void onRenderCrosshair(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+    private void onRenderCrosshair(DrawContext context, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
         if (!ModSettings.targetingEnabled) {
             return;
@@ -37,7 +35,9 @@ public class TargetCrosshairMixin {
         if (target == null) {
             return;
         }
-        double reachDistance = client.player.getAttributeValue(EntityAttributes.PLAYER_ENTITY_INTERACTION_RANGE);
+
+        // Pobieramy zasięg interakcji z interactionManager
+        double reachDistance = client.interactionManager.getReachDistance();
         double distanceSq = client.player.squaredDistanceTo(target);
         if (distanceSq > reachDistance * reachDistance) {
             return;
@@ -81,7 +81,7 @@ public class TargetCrosshairMixin {
                 red = 1.0F; green = 0.0F; blue = 1.0F;
             }
             case RGB -> {
-                float time = ((System.currentTimeMillis() % 2000L) / 2000.0F) * (float)Math.PI * 2.0F;
+                float time = ((System.currentTimeMillis() % 2000L) / 2000.0F) * ((float)Math.PI * 2.0F);
                 red   = 0.5F + 0.5F * (float)Math.sin(time);
                 green = 0.5F + 0.5F * (float)Math.sin(time + (2 * Math.PI / 3));
                 blue  = 0.5F + 0.5F * (float)Math.sin(time + (4 * Math.PI / 3));
@@ -106,5 +106,4 @@ public class TargetCrosshairMixin {
         RenderSystem.disableBlend();
         matrices.pop();
     }
-
 }
