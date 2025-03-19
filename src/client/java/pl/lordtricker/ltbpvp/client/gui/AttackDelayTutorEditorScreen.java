@@ -14,7 +14,7 @@ public class AttackDelayTutorEditorScreen extends Screen {
     private ButtonWidget backButton;
 
     public AttackDelayTutorEditorScreen(Screen parentScreen) {
-        super(Text.literal("Edit - Attack Delay Tutor Settings"));
+        super(Text.of("Edit - Attack Delay Tutor Settings"));
         this.parentScreen = parentScreen;
     }
 

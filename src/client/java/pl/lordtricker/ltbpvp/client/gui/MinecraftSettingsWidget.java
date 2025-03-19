@@ -11,7 +11,7 @@ public class MinecraftSettingsWidget {
     public void initWidgets(int x, int y, int width, int btnHeight, int rowSpacing) {
         MinecraftClient client = MinecraftClient.getInstance();
 
-        boolean autoJump = client.options.getAutoJump().getValue();
+        boolean autoJump = client.options.autoJump;
         autoJumpButton = new ButtonWidget(
                 x,
                 y,
@@ -19,14 +19,14 @@ public class MinecraftSettingsWidget {
                 btnHeight,
                 Text.of(getToggleDisplay(autoJump)),
                 btn -> {
-                    boolean current = client.options.getAutoJump().getValue();
-                    client.options.getAutoJump().setValue(!current);
+                    boolean current = client.options.autoJump;
+                    client.options.autoJump = !current;
                     client.options.write();
                     btn.setMessage(Text.of(getToggleDisplay(!current)));
                 }
         );
 
-        boolean bobView = client.options.getBobView().getValue();
+        boolean bobView = client.options.bobView;
         bobViewButton = new ButtonWidget(
                 x,
                 y + rowSpacing,
@@ -34,8 +34,8 @@ public class MinecraftSettingsWidget {
                 btnHeight,
                 Text.of(getToggleDisplay(bobView)),
                 btn -> {
-                    boolean current = client.options.getBobView().getValue();
-                    client.options.getBobView().setValue(!current);
+                    boolean current = client.options.bobView;
+                    client.options.bobView = !current;
                     client.options.write();
                     btn.setMessage(Text.of(getToggleDisplay(!current)));
                 }

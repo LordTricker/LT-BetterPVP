@@ -1,6 +1,9 @@
 package pl.lordtricker.ltbpvp.client;
 
+import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import pl.lordtricker.ltbpvp.client.command.CommandRegistration;
 import pl.lordtricker.ltbpvp.client.config.ModSettings;
@@ -20,6 +23,7 @@ public class LtbpvpClient implements ClientModInitializer {
 			}
 		});
 
-		CommandRegistration.registerCommands();
+		CommandDispatcher<FabricClientCommandSource> dispatcher = ClientCommandManager.DISPATCHER;
+		CommandRegistration.registerCommands(dispatcher);
 	}
 }

@@ -1,11 +1,9 @@
 package pl.lordtricker.ltbpvp.client.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
+import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.command.CommandRegistryAccess;
 import pl.lordtricker.ltbpvp.client.config.ModSettings;
 import pl.lordtricker.ltbpvp.client.gui.MainSettingsScreen;
 import pl.lordtricker.ltbpvp.client.util.ColorUtils;
@@ -13,14 +11,7 @@ import pl.lordtricker.ltbpvp.client.util.Messages;
 
 public class CommandRegistration {
 
-    public static void registerCommands() {
-        ClientCommandRegistrationCallback.EVENT.register(CommandRegistration::registerLtbCommand);
-    }
-
-    private static void registerLtbCommand(
-            CommandDispatcher<FabricClientCommandSource> dispatcher,
-            CommandRegistryAccess registryAccess
-    ) {
+    public static void registerCommands(CommandDispatcher<FabricClientCommandSource> dispatcher) {
         dispatcher.register(
                 ClientCommandManager.literal("ltb")
                         // /ltb – wyświetlenie podstawowych informacji

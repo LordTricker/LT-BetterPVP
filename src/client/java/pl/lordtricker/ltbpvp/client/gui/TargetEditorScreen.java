@@ -27,7 +27,7 @@ public class TargetEditorScreen extends Screen {
     private ButtonWidget backButton;
 
     public TargetEditorScreen(Screen parentScreen) {
-        super(Text.literal("Edit - Cursor ESP"));
+        super(Text.of("Edit - Cursor ESP"));
         this.parentScreen = parentScreen;
     }
 
@@ -74,7 +74,7 @@ public class TargetEditorScreen extends Screen {
                 line3Y,
                 widgetWidth,
                 widgetHeight,
-                Text.literal("Size: " + ModSettings.targetRange + "px"),
+                Text.of("Size: " + ModSettings.targetRange + "px"),
                 initialNormalized
         );
         addDrawableChild(rangeSlider);
@@ -154,7 +154,7 @@ public class TargetEditorScreen extends Screen {
         @Override
         protected void updateMessage() {
             int range = (int) (16 + this.value * 32);
-            this.setMessage(Text.literal("Size: " + range + "px"));
+            this.setMessage(Text.of("Size: " + range + "px"));
         }
 
         @Override

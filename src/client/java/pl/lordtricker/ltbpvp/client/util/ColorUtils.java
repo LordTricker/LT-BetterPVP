@@ -8,9 +8,9 @@ import net.minecraft.util.Formatting;
 public class ColorUtils {
     public static Text translateColorCodes(String input) {
         if (input == null || input.isEmpty()) {
-            return Text.empty();
+            return Text.of("");
         }
-        MutableText result = Text.empty();
+        MutableText result = (MutableText) Text.of("");
         StringBuilder currentSegment = new StringBuilder();
         Style currentStyle = Style.EMPTY;
 
@@ -18,8 +18,10 @@ public class ColorUtils {
         for (int i = 0; i < chars.length; i++) {
             char c = chars[i];
             if (c == '&' && i + 1 < chars.length) {
-                if (currentSegment.length() > 0) {
-                    result.append(Text.literal(currentSegment.toString()).setStyle(currentStyle));
+                if (!currentSegment.isEmpty()) {
+                    MutableText segment = (MutableText) Text.of(currentSegment.toString());
+                    segment.setStyle(currentStyle);
+                    result.append(segment);
                     currentSegment.setLength(0);
                 }
                 char code = Character.toLowerCase(chars[++i]);
@@ -28,8 +30,10 @@ public class ColorUtils {
                 currentSegment.append(c);
             }
         }
-        if (currentSegment.length() > 0) {
-            result.append(Text.literal(currentSegment.toString()).setStyle(currentStyle));
+        if (!currentSegment.isEmpty()) {
+            MutableText segment = (MutableText) Text.of(currentSegment.toString());
+            segment.setStyle(currentStyle);
+            result.append(segment);
         }
         return result;
     }

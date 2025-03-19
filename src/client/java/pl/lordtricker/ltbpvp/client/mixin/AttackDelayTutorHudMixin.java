@@ -20,7 +20,7 @@ public abstract class AttackDelayTutorHudMixin {
             MinecraftClient client = MinecraftClient.getInstance();
             int screenWidth = client.getWindow().getScaledWidth();
             int screenHeight = client.getWindow().getScaledHeight();
-            Text text = Text.literal(AttackDelayTutorHUD.message);
+            Text text = Text.of(AttackDelayTutorHUD.message);
             int textWidth = client.textRenderer.getWidth(text);
             int x = (screenWidth - textWidth) / 2;
             int y = screenHeight / 2 + 25;

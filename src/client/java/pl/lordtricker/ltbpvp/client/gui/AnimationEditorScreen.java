@@ -28,7 +28,7 @@ public class AnimationEditorScreen extends Screen {
     private int startY;
 
     public AnimationEditorScreen(Screen parentScreen) {
-        super(Text.literal("Edit - Sword Animation"));
+        super(Text.of("Edit - Sword Animation"));
         this.parentScreen = parentScreen;
     }
 
@@ -104,7 +104,7 @@ public class AnimationEditorScreen extends Screen {
 
     private OffsetSliderWidget createOffsetSlider(String axis, float initial, int x, int y, int w, int h) {
         double val = normalizeOffset(initial);
-        return new OffsetSliderWidget(x, y, w, h, Text.literal(axis + ": " + String.format("%.2f", initial)), val, axis);
+        return new OffsetSliderWidget(x, y, w, h, Text.of(axis + ": " + String.format("%.2f", initial)), val, axis);
     }
 
     private double normalizeOffset(float off) {
@@ -176,7 +176,7 @@ public class AnimationEditorScreen extends Screen {
         @Override
         protected void updateMessage() {
             float offVal = (float)(this.customValue * 4.0 - 2.0);
-            this.setMessage(Text.literal(axis + ": " + String.format("%.2f", offVal)));
+            this.setMessage(Text.of(axis + ": " + String.format("%.2f", offVal)));
         }
 
         @Override

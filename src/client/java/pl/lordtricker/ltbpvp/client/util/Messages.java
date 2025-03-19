@@ -49,7 +49,7 @@ public class Messages {
         if (!messages.containsKey(key)) {
             String missing = "Brak wiadomości dla klucza: " + key;
             if (MinecraftClient.getInstance() != null && MinecraftClient.getInstance().player != null) {
-                MinecraftClient.getInstance().player.sendMessage(Text.literal(missing), false);
+                MinecraftClient.getInstance().player.sendMessage(Text.of(missing), false);
             } else {
                 System.err.println(missing);
             }

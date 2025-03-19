@@ -24,7 +24,7 @@ public class MainSettingsScreen extends Screen {
     private int startY;
 
     public MainSettingsScreen() {
-        super(Text.literal("LT-BetterPVP Settings"));
+        super(Text.of("LT-BetterPVP Settings"));
     }
 
     @Override

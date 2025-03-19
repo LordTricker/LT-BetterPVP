@@ -23,7 +23,7 @@ public enum TargetStyle {
     private final Identifier texture;
 
     TargetStyle(String namespace, String path) {
-        this.texture = Identifier.of(namespace, path);
+        this.texture = new Identifier(namespace, path);
     }
 
     public Identifier getTexture() {
