@@ -5,11 +5,11 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.*;
+import net.minecraft.item.consume.UseAction;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
-import net.minecraft.village.TradedItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -47,6 +47,17 @@ public abstract class CustomHandMixin {
         if (!ModSettings.animationsEnabled) {
             return;
         }
+
+        if (hand == Hand.MAIN_HAND && stack.isEmpty()) {
+            return;
+        }
+
+        if (player.isUsingItem() && player.getActiveHand() == hand &&
+                (stack.getItem().getUseAction(stack) == UseAction.EAT ||
+                        stack.getItem().getUseAction(stack) == UseAction.DRINK)) {
+            return;
+        }
+
         ci.cancel();
 
         matrices.push();
