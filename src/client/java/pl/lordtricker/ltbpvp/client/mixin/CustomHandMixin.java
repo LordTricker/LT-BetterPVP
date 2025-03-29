@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.TridentItem;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
+import net.minecraft.util.UseAction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import org.spongepowered.asm.mixin.Mixin;
@@ -50,6 +51,16 @@ public abstract class CustomHandMixin {
         if (!ModSettings.animationsEnabled) {
             return;
         }
+
+        if (hand == Hand.MAIN_HAND && stack.isEmpty()) {
+            return;
+        }
+
+        if (player.isUsingItem() && player.getActiveHand() == hand &&
+                (stack.getUseAction() == UseAction.EAT || stack.getUseAction() == UseAction.DRINK)) {
+            return;
+        }
+
         ci.cancel();
 
         matrices.push();
