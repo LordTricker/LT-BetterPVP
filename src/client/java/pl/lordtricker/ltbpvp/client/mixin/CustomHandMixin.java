@@ -9,7 +9,7 @@ import net.minecraft.item.BowItem;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.TridentItem;
-import net.minecraft.item.consume.UseAction;
+import net.minecraft.util.UseAction;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
@@ -57,8 +57,7 @@ public abstract class CustomHandMixin {
         }
 
         if (player.isUsingItem() && player.getActiveHand() == hand &&
-                (stack.getItem().getUseAction(stack) == UseAction.EAT ||
-                        stack.getItem().getUseAction(stack) == UseAction.DRINK)) {
+                (stack.getUseAction() == UseAction.EAT || stack.getUseAction() == UseAction.DRINK)) {
             return;
         }
 
