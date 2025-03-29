@@ -75,9 +75,12 @@ public class AnimationEditorScreen extends Screen {
                 widgetHeight,
                 Text.of("Reset"),
                 btn -> {
-                    sliderX.setSliderValue(0.5);
-                    sliderY.setSliderValue(0.5);
-                    sliderZ.setSliderValue(0.5);
+                    offsets.offsetX = 0.0f;
+                    offsets.offsetY = 0.0f;
+                    offsets.offsetZ = 0.0f;
+                    sliderX.setSliderValue(normalizeOffset(offsets.offsetX));
+                    sliderY.setSliderValue(normalizeOffset(offsets.offsetY));
+                    sliderZ.setSliderValue(normalizeOffset(offsets.offsetZ));
                 }
         );
         addDrawableChild(resetButton);
