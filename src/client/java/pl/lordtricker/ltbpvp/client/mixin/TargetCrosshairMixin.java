@@ -57,35 +57,16 @@ public class TargetCrosshairMixin {
 
         float angle = (System.currentTimeMillis() % 36000L) / 100.0F;
 
-        float red = 1.0F, green = 1.0F, blue = 1.0F;
-        switch (ModSettings.crosshairColor) {
-            case YELLOW -> {
-                red = 1.0F; green = 1.0F; blue = 0.0F;
-            }
-            case RED -> {
-                red = 1.0F; green = 0.0F; blue = 0.0F;
-            }
-            case LIGHT_BLUE -> {
-                red = 0.5F; green = 0.7F; blue = 1.0F;
-            }
-            case ORANGE -> {
-                red = 1.0F; green = 0.5F; blue = 0.0F;
-            }
-            case GREEN -> {
-                red = 0.0F; green = 1.0F; blue = 0.0F;
-            }
-            case WHITE -> {
-                red = 1.0F; green = 1.0F; blue = 1.0F;
-            }
-            case PURPLE -> {
-                red = 1.0F; green = 0.0F; blue = 1.0F;
-            }
-            case RGB -> {
-                float time = ((System.currentTimeMillis() % 2000L) / 2000.0F) * (float)Math.PI * 2.0F;
-                red   = 0.5F + 0.5F * (float)Math.sin(time);
-                green = 0.5F + 0.5F * (float)Math.sin(time + (2 * Math.PI / 3));
-                blue  = 0.5F + 0.5F * (float)Math.sin(time + (4 * Math.PI / 3));
-            }
+        float red, green, blue;
+        if (ModSettings.rgbEnabled) {
+            float time = ((System.currentTimeMillis() % 2000L) / 2000.0F) * (float)Math.PI * 2.0F;
+            red   = 0.5F + 0.5F * (float)Math.sin(time);
+            green = 0.5F + 0.5F * (float)Math.sin(time + (2 * Math.PI / 3));
+            blue  = 0.5F + 0.5F * (float)Math.sin(time + (4 * Math.PI / 3));
+        } else {
+            red   = ModSettings.customRed;
+            green = ModSettings.customGreen;
+            blue  = ModSettings.customBlue;
         }
 
         matrices.push();
