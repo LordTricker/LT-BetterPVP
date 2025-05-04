@@ -1,11 +1,11 @@
 package pl.lordtricker.ltbpvp.client.mixin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgramKeys;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.*;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderLayer.MultiPhaseParameters;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -24,73 +24,70 @@ import pl.lordtricker.ltbpvp.client.config.ModSettings;
 public class TargetCrosshairMixin {
 
     @Inject(method = "renderCrosshair", at = @At("RETURN"))
-    private void onRenderCrosshair(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+    private void onRenderCrosshair(DrawContext context,
+                                   RenderTickCounter tickCounter,
+                                   CallbackInfo ci) {
+
         MinecraftClient client = MinecraftClient.getInstance();
-        if (!ModSettings.targetingEnabled) {
-            return;
-        }
-        HitResult hitResult = client.crosshairTarget;
-        if (!(hitResult instanceof EntityHitResult)) {
-            return;
-        }
-        EntityHitResult entityHitResult = (EntityHitResult) hitResult;
-        Entity target = entityHitResult.getEntity();
-        if (target == null) {
-            return;
-        }
-        double reachDistance = client.player.getAttributeValue(EntityAttributes.ENTITY_INTERACTION_RANGE);
-        double distanceSq = client.player.squaredDistanceTo(target);
-        if (distanceSq > reachDistance * reachDistance) {
-            return;
-        }
-        MatrixStack matrices = context.getMatrices();
-        renderCustomTargetCrosshair(context, matrices);
+        if (!ModSettings.targetingEnabled) return;
+
+        HitResult hit = client.crosshairTarget;
+        if (!(hit instanceof EntityHitResult entityHit)) return;
+
+        Entity target = entityHit.getEntity();
+        if (target == null) return;
+
+        double reach = client.player.getAttributeValue(EntityAttributes.ENTITY_INTERACTION_RANGE);
+        if (client.player.squaredDistanceTo(target) > reach * reach) return;
+
+        renderCustomTargetCrosshair(context, context.getMatrices());
     }
 
-    private void renderCustomTargetCrosshair(DrawContext context, MatrixStack matrices) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        int screenWidth = client.getWindow().getScaledWidth();
-        int screenHeight = client.getWindow().getScaledHeight();
-        int centerX = screenWidth / 2;
-        int centerY = screenHeight / 2;
+    /** Rysuje celownik z nowymi suwakami / tęczą RGB. */
+    private void renderCustomTargetCrosshair(DrawContext ctx, MatrixStack matrices) {
 
-        int size = ModSettings.targetRange;
-        float angle = (System.currentTimeMillis() % 36000L) / 100.0F;
+        MinecraftClient mc = MinecraftClient.getInstance();
+        int cx = mc.getWindow().getScaledWidth()  / 2;
+        int cy = mc.getWindow().getScaledHeight() / 2;
 
-        int color = 0xFF000000;
-        switch (ModSettings.crosshairColor) {
-            case YELLOW -> color = 0xFFFFFF00;
-            case RED -> color = 0xFFFF0000;
-            case LIGHT_BLUE -> color = 0xFF7FAAFF;
-            case ORANGE -> color = 0xFFFF8000;
-            case GREEN -> color = 0xFF00FF00;
-            case WHITE -> color = 0xFFFFFFFF;
-            case PURPLE -> color = 0xFFFF00FF;
-            case RGB -> {
-                float time = ((System.currentTimeMillis() % 2000L) / 2000.0F) * (float) Math.PI * 2.0F;
-                int r = (int) ((0.5F + 0.5F * Math.sin(time)) * 255);
-                int g = (int) ((0.5F + 0.5F * Math.sin(time + (2 * Math.PI / 3))) * 255);
-                int b = (int) ((0.5F + 0.5F * Math.sin(time + (4 * Math.PI / 3))) * 255);
-                color = 0xFF000000 | (r << 16) | (g << 8) | b;
-            }
+        int size  = ModSettings.targetRange;
+        float rot = (System.currentTimeMillis() % 36_000L) / 100.0F;
+
+        /* ===== KOLORY ===== */
+        float rf, gf, bf;
+
+        if (ModSettings.rgbEnabled) {
+            float t = ((System.currentTimeMillis() % 2_000L) / 2_000.0F) * (float) Math.PI * 2;
+            rf = 0.5F + 0.5F * (float) Math.sin(t);
+            gf = 0.5F + 0.5F * (float) Math.sin(t + 2 * Math.PI / 3);
+            bf = 0.5F + 0.5F * (float) Math.sin(t + 4 * Math.PI / 3);
+        } else {
+            rf = ModSettings.customRed;
+            gf = ModSettings.customGreen;
+            bf = ModSettings.customBlue;
         }
 
+        int ri = Math.round(rf * 255);
+        int gi = Math.round(gf * 255);
+        int bi = Math.round(bf * 255);
+        int argb = 0xFF000000 | (ri << 16) | (gi << 8) | bi;
+
         matrices.push();
-        matrices.translate(centerX, centerY, 0);
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angle));
+        matrices.translate(cx, cy, 0);
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rot));
 
-        Identifier texture = ModSettings.targetStyle.getTexture();
+        Identifier tex = ModSettings.targetStyle.getTexture();
 
-        RenderLayer renderLayer = RenderLayer.of(
-                "target_crosshair",
+        RenderLayer layer = RenderLayer.of(
+                "target_crosshair_rgb",
                 VertexFormats.POSITION_TEXTURE_COLOR,
                 VertexFormat.DrawMode.QUADS,
                 256,
                 false,
                 true,
-                RenderLayer.MultiPhaseParameters.builder()
+                MultiPhaseParameters.builder()
                         .program(new RenderPhase.ShaderProgram(ShaderProgramKeys.POSITION_TEX_COLOR))
-                        .texture(new RenderPhase.Texture(texture, TriState.FALSE, false))
+                        .texture(new RenderPhase.Texture(tex, TriState.FALSE, false))
                         .transparency(RenderPhase.Transparency.TRANSLUCENT_TRANSPARENCY)
                         .lightmap(RenderPhase.Lightmap.DISABLE_LIGHTMAP)
                         .overlay(RenderPhase.Overlay.DISABLE_OVERLAY_COLOR)
@@ -99,18 +96,14 @@ public class TargetCrosshairMixin {
                         .build(true)
         );
 
-        context.drawTexture(
-                identifier -> renderLayer,
-                texture,
-                -size/2,
-                -size/2,
-                0f,
-                0f,
-                size,
-                size,
-                size,
-                size,
-                color
+        ctx.drawTexture(
+                id -> layer,
+                tex,
+                -size / 2, -size / 2,
+                0f, 0f,
+                size, size,
+                size, size,
+                argb
         );
 
         matrices.pop();

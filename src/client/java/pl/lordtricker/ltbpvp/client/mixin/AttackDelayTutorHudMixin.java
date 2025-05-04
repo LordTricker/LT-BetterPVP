@@ -28,11 +28,10 @@ public abstract class AttackDelayTutorHudMixin {
             int xOffset = 25;
 
             context.getMatrices().push();
-            float scale = 0.6F;
+            float scale = 0.7F;
             context.getMatrices().scale(scale, scale, scale);
-            context.drawText(client.textRenderer, text, (int)((x + xOffset) / scale), (int)(y / scale), 0xFF0000, false);
+            context.drawText(client.textRenderer, text, (int)((x + xOffset) / scale), (int)(y / scale), 0xFF0000, true);
             context.getMatrices().pop();
         }
     }
 }
-
