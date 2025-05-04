@@ -9,9 +9,9 @@ import net.minecraft.item.BowItem;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.TridentItem;
+import net.minecraft.util.UseAction;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
-import net.minecraft.util.UseAction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import org.spongepowered.asm.mixin.Mixin;
@@ -43,28 +43,21 @@ public abstract class CustomHandMixin {
             int light,
             CallbackInfo ci
     ) {
-
         if (stack.getItem() instanceof BowItem || stack.getItem() instanceof CrossbowItem || stack.getItem() instanceof TridentItem) {
             return;
         }
-
         if (!ModSettings.animationsEnabled) {
             return;
         }
-
         if (hand == Hand.MAIN_HAND && stack.isEmpty()) {
             return;
         }
-
         if (player.isUsingItem() && player.getActiveHand() == hand &&
                 (stack.getUseAction() == UseAction.EAT || stack.getUseAction() == UseAction.DRINK)) {
             return;
         }
-
         ci.cancel();
-
         matrices.push();
-
         HeldItemRenderer self = (HeldItemRenderer)(Object) this;
 
         if (hand == Hand.MAIN_HAND) {
@@ -77,65 +70,58 @@ public abstract class CustomHandMixin {
                     matrices.translate(offsets.offsetX, offsets.offsetY, offsets.offsetZ);
                 }
             }
-            boolean isRightDominant = player.getMainArm() == Arm.RIGHT;
-            ModelTransformationMode mode = isRightDominant
+            boolean isRight = player.getMainArm() == Arm.RIGHT;
+            ModelTransformationMode mode = isRight
                     ? ModelTransformationMode.FIRST_PERSON_RIGHT_HAND
                     : ModelTransformationMode.FIRST_PERSON_LEFT_HAND;
-            self.renderItem(player, stack, mode, !isRightDominant, matrices, vertexConsumers, light);
+            self.renderItem(player, stack, mode, !isRight, matrices, vertexConsumers, light);
+
         } else if (hand == Hand.OFF_HAND) {
             if (player.isUsingItem() && player.getActiveHand() == Hand.OFF_HAND) {
                 applyLeftHandEatTransform(matrices, stack, player);
             } else {
                 applyLeftHandStaticTransform(matrices);
             }
-            boolean isRightDominant = player.getMainArm() == Arm.RIGHT;
-            ModelTransformationMode mode = isRightDominant
+            if (ModSettings.offhandAnimationEnabled) {
+                AnimationOffsets off = ModSettings.offhandOffsets;
+                matrices.translate(off.offsetX, off.offsetY, off.offsetZ);
+            }
+            boolean isRight = player.getMainArm() == Arm.RIGHT;
+            ModelTransformationMode mode = isRight
                     ? ModelTransformationMode.FIRST_PERSON_LEFT_HAND
                     : ModelTransformationMode.FIRST_PERSON_RIGHT_HAND;
-            self.renderItem(player, stack, mode, isRightDominant, matrices, vertexConsumers, light);
+            self.renderItem(player, stack, mode, isRight, matrices, vertexConsumers, light);
         }
-
         matrices.pop();
     }
 
-    /**
-     * Customowa animacja dla MainHand – pozostaje podobna do poprzednich wersji.
-     */
     private void applyCustomMainHandSwing(MatrixStack matrices, float swingProgress, SwingStyle style) {
-        float rad = swingProgress * (float) Math.PI;
+        float rad = swingProgress * (float)Math.PI;
         float sin = MathHelper.sin(rad);
         switch (style) {
             case BASIC_SWING -> {
                 matrices.translate(0.4, -0.25, -0.6);
                 matrices.scale(0.50F, 0.50F, 0.50F);
-                float angleX = -95.0F * sin;
-                float angleY = 35.0F * sin;
-                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(angleX));
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(angleY));
+                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-95.0F * sin));
+                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(35.0F * sin));
             }
             case BASIC_CLAP -> {
                 matrices.translate(0.4, -0.25, -0.6);
                 matrices.scale(0.50F, 0.50F, 0.50F);
-                float angleX = -85.0F * sin;
-                float angleY = -110.0F * sin;
-                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(angleX));
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(angleY));
+                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-85.0F * sin));
+                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-110.0F * sin));
             }
             case SWIPE_IN -> {
                 matrices.translate(1.3, -0.7, -2.6);
                 matrices.scale(1.4F, 1.4F, 1.4F);
-                float angleY = -60.0F - 60.0F * sin;
-                float angleZ = 75.0F - 0.3F * sin * 10f;
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(angleY));
-                matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angleZ));
+                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-60.0F - 60.0F * sin));
+                matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(75.0F - 3.0F * sin));
             }
             case SWIPE_OUT -> {
                 matrices.translate(1.3, -0.7, -2.6);
                 matrices.scale(1.4F, 1.4F, 1.4F);
-                float angleY = -60.0F + 60.0F * sin;
-                float angleZ = 75.0F + 2F * sin * 10f;
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(angleY));
-                matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angleZ));
+                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-60.0F + 60.0F * sin));
+                matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(75.0F + 20.0F * sin));
             }
             case NO_SWING -> {
                 matrices.translate(0.4, -0.25, -0.6);
@@ -148,10 +134,7 @@ public abstract class CustomHandMixin {
         float timeLeft = player.getItemUseTimeLeft();
         float maxTime = item.getMaxUseTime();
         float progress = 1.0F - timeLeft / maxTime;
-        float speedFactor = 1.2F;
-        float adjustedProgress = Math.min(progress * speedFactor, 1.0F);
-        float sin = MathHelper.sin(adjustedProgress * (float) Math.PI);
-
+        float sin = MathHelper.sin(Math.min(progress * 1.2F, 1.0F) * (float)Math.PI);
         matrices.translate(0.56f, -0.5f, -0.8f);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-40.0F));
         matrices.translate(0.0f, sin * 0.1f, 0.0f);
@@ -160,30 +143,20 @@ public abstract class CustomHandMixin {
         matrices.scale(0.7f, 0.7f, 0.7f);
     }
 
-    /**
-     * Transformacja dla off-hand w trybie statycznym.
-     */
     private void applyLeftHandStaticTransform(MatrixStack matrices) {
         matrices.translate(-0.62f, -0.5f, -0.95f);
         matrices.scale(0.7f, 0.7f, 0.7f);
     }
 
-    /**
-     * Transformacja dla off-hand przy używaniu przedmiotu (np. jedzenie).
-     */
     private void applyLeftHandEatTransform(MatrixStack matrices, ItemStack item, AbstractClientPlayerEntity player) {
         float timeLeft = player.getItemUseTimeLeft();
         float maxTime = item.getMaxUseTime();
-        float progress = 1.0F - timeLeft / maxTime;
-        float speedFactor = 1.5F;
-        float adjustedProgress = Math.min(progress * speedFactor, 1.0F);
-        float sin = MathHelper.sin(adjustedProgress * (float) Math.PI);
-
+        float sin = MathHelper.sin(Math.min((1.0F - timeLeft / maxTime) * 1.5F, 1.0F) * (float)Math.PI);
         matrices.translate(-0.62f, -0.6f, -0.8f);
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(40.0F));
         matrices.translate(0.0f, sin * 0.07f, 0.0f);
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(sin * -15.0F));
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(sin * -7.0F));
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-15.0F * sin));
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-7.0F * sin));
         matrices.scale(0.7f, 0.7f, 0.7f);
     }
 }
