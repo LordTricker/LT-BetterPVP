@@ -24,19 +24,12 @@ public abstract class AttackDelayTutorMixin {
     private boolean hasAttackedOnce = false;
 
     /**
-     * Wstrzyknięcie do metody swingHand.
-     * Sprawdzamy, czy gracz celuje w encję. Jeśli tak, obliczamy cooldown na podstawie atrybutu ATTACK_SPEED.
-     * Jeśli odstęp między swingami jest mniejszy niż wymagany cooldown, wysyłamy komunikat HUD oraz odtwarzamy dźwięk.
+     * Każdy zamach aktualizuje timer, ale powiadamia tylko gdy trafiamy encję
+     * i wykonujemy zamach szybciej niż cooldown.
      */
     @Inject(method = "swingHand", at = @At("HEAD"))
     private void onSwingHand(Hand hand, CallbackInfo ci) {
-        ClientPlayerEntity player = (ClientPlayerEntity)(Object)this;
         if (!ModSettings.attackDelayTutorEnabled) {
-            return;
-        }
-
-        HitResult hitResult = MinecraftClient.getInstance().crosshairTarget;
-        if (!(hitResult instanceof EntityHitResult)) {
             return;
         }
 
@@ -50,11 +43,13 @@ public abstract class AttackDelayTutorMixin {
         long delta = currentTime - lastSwingTime;
         lastSwingTime = currentTime;
 
+        ClientPlayerEntity player = (ClientPlayerEntity)(Object)this;
         float attackSpeed = (float) player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED);
         float cooldownTicks = 20.0F / attackSpeed;
         long cooldownMs = (long)(cooldownTicks * 50);
 
-        if (delta < cooldownMs) {
+        HitResult hit = MinecraftClient.getInstance().crosshairTarget;
+        if (hit instanceof EntityHitResult && delta < cooldownMs) {
             if (ModSettings.attackDelayTutorTextEnabled) {
                 AttackDelayTutorHUD.setMessage("Uderzyłeś za szybko!", 500);
             }

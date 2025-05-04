@@ -3,6 +3,7 @@ package pl.lordtricker.ltbpvp.client.mixin;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,11 +28,10 @@ public abstract class AttackDelayTutorHudMixin {
             int xOffset = 25;
 
             context.getMatrices().push();
-            float scale = 0.6F;
+            float scale = 0.7F;
             context.getMatrices().scale(scale, scale, scale);
-            context.drawText(client.textRenderer, text, (int)((x + xOffset) / scale), (int)(y / scale), 0xFF0000, false);
+            context.drawText(client.textRenderer, text, (int)((x + xOffset) / scale), (int)(y / scale), 0xFF0000, true);
             context.getMatrices().pop();
         }
     }
 }
-

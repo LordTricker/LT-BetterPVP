@@ -3,10 +3,12 @@ package pl.lordtricker.ltbpvp.client.mixin;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.Identifier;
@@ -35,8 +37,6 @@ public class TargetCrosshairMixin {
         if (target == null) {
             return;
         }
-
-        // Pobieramy zasięg interakcji z interactionManager
         double reachDistance = client.interactionManager.getReachDistance();
         double distanceSq = client.player.squaredDistanceTo(target);
         if (distanceSq > reachDistance * reachDistance) {
@@ -57,35 +57,16 @@ public class TargetCrosshairMixin {
 
         float angle = (System.currentTimeMillis() % 36000L) / 100.0F;
 
-        float red = 1.0F, green = 1.0F, blue = 1.0F;
-        switch (ModSettings.crosshairColor) {
-            case YELLOW -> {
-                red = 1.0F; green = 1.0F; blue = 0.0F;
-            }
-            case RED -> {
-                red = 1.0F; green = 0.0F; blue = 0.0F;
-            }
-            case LIGHT_BLUE -> {
-                red = 0.5F; green = 0.7F; blue = 1.0F;
-            }
-            case ORANGE -> {
-                red = 1.0F; green = 0.5F; blue = 0.0F;
-            }
-            case GREEN -> {
-                red = 0.0F; green = 1.0F; blue = 0.0F;
-            }
-            case WHITE -> {
-                red = 1.0F; green = 1.0F; blue = 1.0F;
-            }
-            case PURPLE -> {
-                red = 1.0F; green = 0.0F; blue = 1.0F;
-            }
-            case RGB -> {
-                float time = ((System.currentTimeMillis() % 2000L) / 2000.0F) * ((float)Math.PI * 2.0F);
-                red   = 0.5F + 0.5F * (float)Math.sin(time);
-                green = 0.5F + 0.5F * (float)Math.sin(time + (2 * Math.PI / 3));
-                blue  = 0.5F + 0.5F * (float)Math.sin(time + (4 * Math.PI / 3));
-            }
+        float red, green, blue;
+        if (ModSettings.rgbEnabled) {
+            float time = ((System.currentTimeMillis() % 2000L) / 2000.0F) * (float)Math.PI * 2.0F;
+            red   = 0.5F + 0.5F * (float)Math.sin(time);
+            green = 0.5F + 0.5F * (float)Math.sin(time + (2 * Math.PI / 3));
+            blue  = 0.5F + 0.5F * (float)Math.sin(time + (4 * Math.PI / 3));
+        } else {
+            red   = ModSettings.customRed;
+            green = ModSettings.customGreen;
+            blue  = ModSettings.customBlue;
         }
 
         matrices.push();
@@ -106,4 +87,5 @@ public class TargetCrosshairMixin {
         RenderSystem.disableBlend();
         matrices.pop();
     }
+
 }
