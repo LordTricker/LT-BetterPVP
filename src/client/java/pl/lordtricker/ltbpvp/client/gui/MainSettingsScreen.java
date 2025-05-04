@@ -6,15 +6,27 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import pl.lordtricker.ltbpvp.client.config.ModSettings;
 
+/**
+ * Wersja zgodna z&nbsp;Minecraft&nbsp;1.19.2 – bez API Buildera dla {@link ButtonWidget}.
+ */
 public class MainSettingsScreen extends Screen {
-
     private boolean animationsEnabled;
     private boolean targetingEnabled;
 
+    private ButtonWidget animationsToggleButton;
     private ButtonWidget animationsEditButton;
+
+    private ButtonWidget offhandToggleButton;
+    private ButtonWidget offhandEditButton;
+
+    private ButtonWidget targetingToggleButton;
     private ButtonWidget targetingEditButton;
+
     private ButtonWidget attackTutorButton;
     private ButtonWidget attackTutorEditButton;
+
+    private ButtonWidget armorToggleButton;
+    private ButtonWidget armorEditButton;
 
     private int rowHeight;
     private final int labelAreaWidth = 120;
@@ -30,23 +42,25 @@ public class MainSettingsScreen extends Screen {
     @Override
     protected void init() {
         animationsEnabled = ModSettings.animationsEnabled;
-        targetingEnabled = ModSettings.targetingEnabled;
+        targetingEnabled  = ModSettings.targetingEnabled;
 
         rowHeight = 25;
         int btnHeight = 20;
 
-        int totalLines = 5;
+        /* 8 wierszy - 0 tutor, 1 sword, 2 offhand, 3 cursor, 4 armor, 5 autojump, 6 bobbing, 7 shake */
+        int totalLines       = 8;
         int totalBlockHeight = totalLines * rowHeight;
-        this.startY = (this.height - totalBlockHeight) / 2;
+        this.startY          = (this.height - totalBlockHeight) / 2;
 
         int totalGroupWidth = labelAreaWidth + spacing + buttonAreaWidth;
-        int groupLeft = (this.width - totalGroupWidth) / 2;
-        int buttonX = groupLeft + labelAreaWidth + spacing;
+        int groupLeft       = (this.width - totalGroupWidth) / 2;
+        int buttonX         = groupLeft + labelAreaWidth + spacing;
+        int y               = startY;
 
-        int tutorButtonY = startY;
+        /* --- Attack‑delay tutor ----------------------------------- */
         attackTutorButton = new ButtonWidget(
                 buttonX,
-                tutorButtonY,
+                y,
                 80,
                 btnHeight,
                 Text.of(ModSettings.attackDelayTutorEnabled ? "ON" : "OFF"),
@@ -59,21 +73,19 @@ public class MainSettingsScreen extends Screen {
 
         attackTutorEditButton = new ButtonWidget(
                 buttonX + 80,
-                tutorButtonY,
+                y,
                 20,
                 btnHeight,
                 Text.of("..."),
-                button -> {
-                    assert this.client != null;
-                    this.client.setScreen(new AttackDelayTutorEditorScreen(this));
-                }
+                button -> this.client.setScreen(new AttackDelayTutorEditorScreen(this))
         );
         addDrawableChild(attackTutorEditButton);
 
-        int line1Y = startY + rowHeight; // Sword Animation
-        ButtonWidget animationsToggleButton = new ButtonWidget(
+        /* --- Sword animation -------------------------------------- */
+        y += rowHeight;
+        animationsToggleButton = new ButtonWidget(
                 buttonX,
-                line1Y,
+                y,
                 80,
                 btnHeight,
                 Text.of(getToggleDisplay(animationsEnabled)),
@@ -87,25 +99,47 @@ public class MainSettingsScreen extends Screen {
 
         animationsEditButton = new ButtonWidget(
                 buttonX + 80,
-                line1Y,
+                y,
                 20,
                 btnHeight,
                 Text.of("..."),
-                button -> {
-                    assert this.client != null;
-                    this.client.setScreen(new AnimationEditorScreen(this));
-                }
+                button -> this.client.setScreen(new AnimationEditorScreen(this))
         );
         addDrawableChild(animationsEditButton);
+        animationsEditButton.active = animationsEnabled;
 
-        if (!animationsEnabled) {
-            animationsEditButton.active = false;
-        }
-
-        int line2Y = startY + 2 * rowHeight; // Cursor ESP
-        ButtonWidget targetingToggleButton = new ButtonWidget(
+        /* --- Off‑hand animation ----------------------------------- */
+        y += rowHeight;
+        offhandToggleButton = new ButtonWidget(
                 buttonX,
-                line2Y,
+                y,
+                80,
+                btnHeight,
+                Text.of(getToggleDisplay(ModSettings.offhandAnimationEnabled)),
+                button -> {
+                    ModSettings.offhandAnimationEnabled = !ModSettings.offhandAnimationEnabled;
+                    button.setMessage(Text.of(getToggleDisplay(ModSettings.offhandAnimationEnabled)));
+                    offhandEditButton.active = ModSettings.offhandAnimationEnabled;
+                }
+        );
+        addDrawableChild(offhandToggleButton);
+
+        offhandEditButton = new ButtonWidget(
+                buttonX + 80,
+                y,
+                20,
+                btnHeight,
+                Text.of("..."),
+                button -> this.client.setScreen(new OffHandAnimationEditorScreen(this))
+        );
+        addDrawableChild(offhandEditButton);
+        offhandEditButton.active = ModSettings.offhandAnimationEnabled;
+
+        /* --- Cursor ESP ------------------------------------------- */
+        y += rowHeight;
+        targetingToggleButton = new ButtonWidget(
+                buttonX,
+                y,
                 80,
                 btnHeight,
                 Text.of(getToggleDisplay(targetingEnabled)),
@@ -119,46 +153,68 @@ public class MainSettingsScreen extends Screen {
 
         targetingEditButton = new ButtonWidget(
                 buttonX + 80,
-                line2Y,
+                y,
                 20,
                 btnHeight,
                 Text.of("..."),
-                button -> {
-                    assert this.client != null;
-                    this.client.setScreen(new TargetEditorScreen(this));
-                }
+                button -> this.client.setScreen(new TargetEditorScreen(this))
         );
         addDrawableChild(targetingEditButton);
+        targetingEditButton.active = targetingEnabled;
 
-        if (!targetingEnabled) {
-            targetingEditButton.active = false;
-        }
+        /* --- Armor status ----------------------------------------- */
+        y += rowHeight;
+        armorToggleButton = new ButtonWidget(
+                buttonX,
+                y,
+                80,
+                btnHeight,
+                Text.of(getToggleDisplay(ModSettings.armorStatusEnabled)),
+                button -> {
+                    ModSettings.armorStatusEnabled = !ModSettings.armorStatusEnabled;
+                    button.setMessage(Text.of(getToggleDisplay(ModSettings.armorStatusEnabled)));
+                    armorEditButton.active = ModSettings.armorStatusEnabled;
+                }
+        );
+        addDrawableChild(armorToggleButton);
 
-        MinecraftSettingsWidget mcSettingsWidget = new MinecraftSettingsWidget();
-        int mcSettingsY = startY + 3 * rowHeight;
-        mcSettingsWidget.initWidgets(buttonX, mcSettingsY, buttonAreaWidth, btnHeight, rowHeight);
-        for (ButtonWidget b : mcSettingsWidget.getWidgets()) {
+        armorEditButton = new ButtonWidget(
+                buttonX + 80,
+                y,
+                20,
+                btnHeight,
+                Text.of("..."),
+                button -> this.client.setScreen(new ArmorStatusEditorScreen(this))
+        );
+        addDrawableChild(armorEditButton);
+        armorEditButton.active = ModSettings.armorStatusEnabled;
+
+        /* --- Minecraft‑owe przełączniki (auto‑jump, bobbing, shake) */
+        MinecraftSettingsWidget mc = new MinecraftSettingsWidget();
+        y += rowHeight;
+        mc.initWidgets(buttonX, y, buttonAreaWidth, btnHeight, rowHeight);
+        for (ButtonWidget b : mc.getWidgets()) {
             addDrawableChild(b);
         }
 
-        int centerX = this.width / 2;
-        int saveBtnWidth = 100;
-        int saveBtnX = centerX - saveBtnWidth / 2;
-        ButtonWidget saveButton = new ButtonWidget(
-                saveBtnX,
+        /* --- Save & quit ------------------------------------------ */
+        ButtonWidget saveBtn = new ButtonWidget(
+                (this.width - 100) / 2,
                 this.height - 30,
-                saveBtnWidth,
+                100,
                 btnHeight,
                 Text.of("Save and Quit"),
                 button -> {
                     ModSettings.animationsEnabled = animationsEnabled;
-                    ModSettings.targetingEnabled = targetingEnabled;
+                    ModSettings.targetingEnabled  = targetingEnabled;
                     ModSettings.save();
                     this.close();
                 }
         );
-        addDrawableChild(saveButton);
+        addDrawableChild(saveBtn);
     }
+
+    /* --------------------------------------------------------------------- */
 
     private String getToggleDisplay(boolean value) {
         return value ? "ON" : "OFF";
@@ -168,16 +224,20 @@ public class MainSettingsScreen extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices);
         super.render(matrices, mouseX, mouseY, delta);
+
         drawCenteredTextLocal(matrices, this.title, 10, 0xFFFFFF);
 
         int totalGroupWidth = labelAreaWidth + spacing + buttonAreaWidth;
         int labelX = (this.width - totalGroupWidth) / 2;
 
-        this.textRenderer.draw(matrices, "Attack delay tutor:", labelX, startY + 5, 0xFFFFFF);
-        this.textRenderer.draw(matrices, "Sword Animation:", labelX, startY + rowHeight + 5, 0xFFFFFF);
-        this.textRenderer.draw(matrices, "Cursor ESP:", labelX, startY + 2 * rowHeight + 5, 0xFFFFFF);
-        this.textRenderer.draw(matrices, "Auto Jump:", labelX, startY + 3 * rowHeight + 5, 0xFFFFFF);
-        this.textRenderer.draw(matrices, "View Bobbing:", labelX, startY + 4 * rowHeight + 5, 0xFFFFFF);
+        this.textRenderer.draw(matrices, "Attack delay tutor:", labelX, startY + 0 * rowHeight + 5, 0xFFFFFF);
+        this.textRenderer.draw(matrices, "Sword Animation:",     labelX, startY + 1 * rowHeight + 5, 0xFFFFFF);
+        this.textRenderer.draw(matrices, "OffHand Animation:",   labelX, startY + 2 * rowHeight + 5, 0xFFFFFF);
+        this.textRenderer.draw(matrices, "Cursor ESP:",          labelX, startY + 3 * rowHeight + 5, 0xFFFFFF);
+        this.textRenderer.draw(matrices, "Armor status:",        labelX, startY + 4 * rowHeight + 5, 0xFFFFFF);
+        this.textRenderer.draw(matrices, "Auto Jump:",           labelX, startY + 5 * rowHeight + 5, 0xFFFFFF);
+        this.textRenderer.draw(matrices, "View Bobbing:",        labelX, startY + 6 * rowHeight + 5, 0xFFFFFF);
+        this.textRenderer.draw(matrices, "Screen Shake:",        labelX, startY + 7 * rowHeight + 5, 0xFFFFFF);
     }
 
     private void drawCenteredTextLocal(MatrixStack matrices, Text text, int y, int color) {
