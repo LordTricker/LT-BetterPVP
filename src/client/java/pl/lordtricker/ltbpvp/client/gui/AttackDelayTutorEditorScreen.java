@@ -55,12 +55,13 @@ public class AttackDelayTutorEditorScreen extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices);
         super.render(matrices, mouseX, mouseY, delta);
-        drawCenteredText(matrices, this.title, 10, 0xFFFFFF);
+
+        drawCenteredTextLocal(matrices, this.title, 10, 0xFFFFFF);
     }
 
-    private void drawCenteredText(MatrixStack matrices, Text text, int y, int color) {
+    private void drawCenteredTextLocal(MatrixStack matrices, Text text, int y, int color) {
         int textWidth = this.textRenderer.getWidth(text);
         int x = (this.width - textWidth) / 2;
-        this.textRenderer.drawWithShadow(matrices, text, (float) x, (float) y, color);
+        this.textRenderer.draw(matrices, text, (float)x, (float)y, color);
     }
 }

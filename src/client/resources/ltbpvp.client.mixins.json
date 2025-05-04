@@ -3,10 +3,11 @@
 	"package": "pl.lordtricker.ltbpvp.client.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
+		"AttackDelayTutorHudMixin",
+		"AttackDelayTutorMixin",
 		"CustomHandMixin",
 		"TargetCrosshairMixin",
-		"AttackDelayTutorMixin",
-		"AttackDelayTutorHudMixin"
+		"ArmorStatusMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
