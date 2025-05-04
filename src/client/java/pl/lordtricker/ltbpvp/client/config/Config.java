@@ -28,6 +28,11 @@ public class Config {
     public boolean attackDelayTutorSoundEnabled = true;
     public boolean attackDelayTutorTextEnabled = true;
 
+    public boolean armorStatusEnabled = false;
+    public boolean armorStatusSoundEnabled = true;
+    public boolean armorStatusTextEnabled = true;
+    public int armorStatusThreshold = 25;
+
     public Map<SwingStyle, AnimationOffsets> styleOffsets = new EnumMap<>(SwingStyle.class);
 
     public boolean offhandAnimationEnabled = false;

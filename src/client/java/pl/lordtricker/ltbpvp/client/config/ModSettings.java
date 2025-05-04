@@ -33,6 +33,11 @@ public class ModSettings {
     public static boolean attackDelayTutorSoundEnabled = true;
     public static boolean attackDelayTutorTextEnabled = true;
 
+    public static boolean armorStatusEnabled = false;
+    public static boolean armorStatusSoundEnabled = true;
+    public static boolean armorStatusTextEnabled = true;
+    public static int armorStatusThreshold = 25;
+
     static {
         for (SwingStyle style : SwingStyle.values()) {
             styleOffsets.put(style, new AnimationOffsets(0.0f, 0.0f, 0.0f));
@@ -85,6 +90,10 @@ public class ModSettings {
         cfg.offhandOffsets.offsetX = offhandOffsets.offsetX;
         cfg.offhandOffsets.offsetY = offhandOffsets.offsetY;
         cfg.offhandOffsets.offsetZ = offhandOffsets.offsetZ;
+        cfg.armorStatusEnabled = armorStatusEnabled;
+        cfg.armorStatusSoundEnabled = armorStatusSoundEnabled;
+        cfg.armorStatusTextEnabled = armorStatusTextEnabled;
+        cfg.armorStatusThreshold = armorStatusThreshold;
         return cfg;
     }
 
@@ -110,6 +119,10 @@ public class ModSettings {
         offhandOffsets.offsetX = cfg.offhandOffsets.offsetX;
         offhandOffsets.offsetY = cfg.offhandOffsets.offsetY;
         offhandOffsets.offsetZ = cfg.offhandOffsets.offsetZ;
+        armorStatusEnabled = cfg.armorStatusEnabled;
+        armorStatusSoundEnabled = cfg.armorStatusSoundEnabled;
+        armorStatusTextEnabled = cfg.armorStatusTextEnabled;
+        armorStatusThreshold = cfg.armorStatusThreshold;
         for (SwingStyle style : cfg.styleOffsets.keySet()) {
             Config.AnimationOffsets coff = cfg.styleOffsets.get(style);
             AnimationOffsets moff = styleOffsets.get(style);
