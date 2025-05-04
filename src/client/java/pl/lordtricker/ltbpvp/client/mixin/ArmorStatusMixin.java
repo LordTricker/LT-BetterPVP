@@ -3,7 +3,6 @@ package pl.lordtricker.ltbpvp.client.mixin;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
