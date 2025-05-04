@@ -35,6 +35,7 @@ public class AnimationEditorScreen extends Screen {
     @Override
     protected void init() {
         int centerX = this.width / 2;
+
         int totalBlockHeight = totalLines * rowSpacing;
         this.startY = (this.height - totalBlockHeight) / 2;
 
@@ -87,6 +88,7 @@ public class AnimationEditorScreen extends Screen {
 
         int saveBtnWidth = 100;
         int saveBtnX = centerX - saveBtnWidth / 2;
+
         saveButton = new ButtonWidget(
                 saveBtnX,
                 this.height - 30,
@@ -98,6 +100,9 @@ public class AnimationEditorScreen extends Screen {
         addDrawableChild(saveButton);
     }
 
+    /**
+     * Odświeża suwaki, gdy zmieniamy styl animacji miecza.
+     */
     private void refreshSliders() {
         AnimationOffsets off = ModSettings.styleOffsets.get(ModSettings.swingStyle);
         sliderX.setSliderValue(normalizeOffset(off.offsetX));
@@ -105,11 +110,17 @@ public class AnimationEditorScreen extends Screen {
         sliderZ.setSliderValue(normalizeOffset(off.offsetZ));
     }
 
+    /**
+     * Tworzy slider offsetu (X/Y/Z).
+     */
     private OffsetSliderWidget createOffsetSlider(String axis, float initial, int x, int y, int w, int h) {
         double val = normalizeOffset(initial);
         return new OffsetSliderWidget(x, y, w, h, Text.literal(axis + ": " + String.format("%.2f", initial)), val, axis);
     }
 
+    /**
+     * Konwersja float offset -> [0..1] dla slidera (zakładamy zakres od -2.0 do +2.0).
+     */
     private double normalizeOffset(float off) {
         double sliderVal = (off + 2.0) / 4.0;
         if (sliderVal < 0) sliderVal = 0;
@@ -117,6 +128,9 @@ public class AnimationEditorScreen extends Screen {
         return sliderVal;
     }
 
+    /**
+     * Konwersja wartości slidera (0..1) -> float offset (-2..+2).
+     */
     private float denormalizeOffset(double sliderVal) {
         return (float)(sliderVal * 4.0 - 2.0);
     }
@@ -141,15 +155,23 @@ public class AnimationEditorScreen extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices);
         super.render(matrices, mouseX, mouseY, delta);
+
         drawCenteredTextLocal(matrices, this.title, 10, 0xFFFFFF);
     }
 
+    /**
+     * Metoda rysująca wycentrowany tekst w podanym Y, aby kod był czytelny.
+     */
     private void drawCenteredTextLocal(MatrixStack matrices, Text text, int y, int color) {
         int textWidth = this.textRenderer.getWidth(text);
         int x = (this.width - textWidth) / 2;
         this.textRenderer.draw(matrices, text, (float)x, (float)y, color);
     }
 
+    /**
+     * Klasa wewnętrzna SliderWidget dostosowana do zapisywania offsetów
+     * w ModSettings.styleOffsets.
+     */
     private class OffsetSliderWidget extends SliderWidget {
         private final String axis;
         private double customValue;
@@ -186,8 +208,10 @@ public class AnimationEditorScreen extends Screen {
         protected void applyValue() {
             this.customValue = this.value;
             updateMessage();
+
             AnimationOffsets off = ModSettings.styleOffsets.get(ModSettings.swingStyle);
             float realVal = (float)(this.customValue * 4.0 - 2.0);
+
             switch (axis) {
                 case "X" -> off.offsetX = realVal;
                 case "Y" -> off.offsetY = realVal;

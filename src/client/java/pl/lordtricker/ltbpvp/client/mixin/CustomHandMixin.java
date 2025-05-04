@@ -9,9 +9,9 @@ import net.minecraft.item.BowItem;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.TridentItem;
+import net.minecraft.util.UseAction;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
-import net.minecraft.util.UseAction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3f;
 import org.spongepowered.asm.mixin.Mixin;
@@ -43,28 +43,21 @@ public abstract class CustomHandMixin {
             int light,
             CallbackInfo ci
     ) {
-
         if (stack.getItem() instanceof BowItem || stack.getItem() instanceof CrossbowItem || stack.getItem() instanceof TridentItem) {
             return;
         }
-
         if (!ModSettings.animationsEnabled) {
             return;
         }
-
         if (hand == Hand.MAIN_HAND && stack.isEmpty()) {
             return;
         }
-
         if (player.isUsingItem() && player.getActiveHand() == hand &&
                 (stack.getUseAction() == UseAction.EAT || stack.getUseAction() == UseAction.DRINK)) {
             return;
         }
-
         ci.cancel();
-
         matrices.push();
-
         HeldItemRenderer self = (HeldItemRenderer)(Object) this;
 
         if (hand == Hand.MAIN_HAND) {
@@ -77,29 +70,33 @@ public abstract class CustomHandMixin {
                     matrices.translate(offsets.offsetX, offsets.offsetY, offsets.offsetZ);
                 }
             }
-            boolean isRightDominant = player.getMainArm() == Arm.RIGHT;
-            ModelTransformation.Mode mode = isRightDominant
+            boolean isRight = player.getMainArm() == Arm.RIGHT;
+            ModelTransformation.Mode mode = isRight
                     ? ModelTransformation.Mode.FIRST_PERSON_RIGHT_HAND
                     : ModelTransformation.Mode.FIRST_PERSON_LEFT_HAND;
-            self.renderItem(player, stack, mode, !isRightDominant, matrices, vertexConsumers, light);
+            self.renderItem(player, stack, mode, !isRight, matrices, vertexConsumers, light);
+
         } else if (hand == Hand.OFF_HAND) {
             if (player.isUsingItem() && player.getActiveHand() == Hand.OFF_HAND) {
                 applyLeftHandEatTransform(matrices, stack, player);
             } else {
                 applyLeftHandStaticTransform(matrices);
             }
-            boolean isRightDominant = player.getMainArm() == Arm.RIGHT;
-            ModelTransformation.Mode mode = isRightDominant
+            if (ModSettings.offhandAnimationEnabled) {
+                AnimationOffsets off = ModSettings.offhandOffsets;
+                matrices.translate(off.offsetX, off.offsetY, off.offsetZ);
+            }
+            boolean isRight = player.getMainArm() == Arm.RIGHT;
+            ModelTransformation.Mode mode = isRight
                     ? ModelTransformation.Mode.FIRST_PERSON_LEFT_HAND
                     : ModelTransformation.Mode.FIRST_PERSON_RIGHT_HAND;
-            self.renderItem(player, stack, mode, isRightDominant, matrices, vertexConsumers, light);
+            self.renderItem(player, stack, mode, isRight, matrices, vertexConsumers, light);
         }
-
         matrices.pop();
     }
 
     private void applyCustomMainHandSwing(MatrixStack matrices, float swingProgress, SwingStyle style) {
-        float rad = swingProgress * (float) Math.PI;
+        float rad = swingProgress * (float)Math.PI;
         float sin = MathHelper.sin(rad);
         switch (style) {
             case BASIC_SWING -> {
@@ -145,10 +142,7 @@ public abstract class CustomHandMixin {
         float timeLeft = player.getItemUseTimeLeft();
         float maxTime = item.getMaxUseTime();
         float progress = 1.0F - timeLeft / maxTime;
-        float speedFactor = 1.2F;
-        float adjustedProgress = Math.min(progress * speedFactor, 1.0F);
-        float sin = MathHelper.sin(adjustedProgress * (float) Math.PI);
-
+        float sin = MathHelper.sin(Math.min(progress * 1.2F, 1.0F) * (float)Math.PI);
         matrices.translate(0.56f, -0.5f, -0.8f);
         matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(-40.0F));
         matrices.translate(0.0f, sin * 0.1f, 0.0f);
@@ -165,11 +159,7 @@ public abstract class CustomHandMixin {
     private void applyLeftHandEatTransform(MatrixStack matrices, ItemStack item, AbstractClientPlayerEntity player) {
         float timeLeft = player.getItemUseTimeLeft();
         float maxTime = item.getMaxUseTime();
-        float progress = 1.0F - timeLeft / maxTime;
-        float speedFactor = 1.5F;
-        float adjustedProgress = Math.min(progress * speedFactor, 1.0F);
-        float sin = MathHelper.sin(adjustedProgress * (float) Math.PI);
-
+        float sin = MathHelper.sin(Math.min((1.0F - timeLeft / maxTime) * 1.5F, 1.0F) * (float)Math.PI);
         matrices.translate(-0.62f, -0.6f, -0.8f);
         matrices.multiply(Vec3f.POSITIVE_Y.getDegreesQuaternion(40.0F));
         matrices.translate(0.0f, sin * 0.07f, 0.0f);

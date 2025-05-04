@@ -27,7 +27,7 @@ public abstract class AttackDelayTutorHudMixin {
             int xOffset = 25;
 
             matrices.push();
-            float scale = 0.6F;
+            float scale = 0.7F;
             matrices.scale(scale, scale, scale);
             client.textRenderer.draw(matrices, text, (x + xOffset) / scale, y / scale, 0xFF0000);
             matrices.pop();
