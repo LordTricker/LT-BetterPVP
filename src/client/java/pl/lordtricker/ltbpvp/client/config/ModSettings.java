@@ -38,6 +38,9 @@ public class ModSettings {
     public static boolean armorStatusTextEnabled = true;
     public static int armorStatusThreshold = 25;
 
+    public static boolean lowFireEnabled = false;
+    public static float lowFireHeight = 0.0f;
+
     static {
         for (SwingStyle style : SwingStyle.values()) {
             styleOffsets.put(style, new AnimationOffsets(0.0f, 0.0f, 0.0f));
@@ -94,6 +97,8 @@ public class ModSettings {
         cfg.armorStatusSoundEnabled = armorStatusSoundEnabled;
         cfg.armorStatusTextEnabled = armorStatusTextEnabled;
         cfg.armorStatusThreshold = armorStatusThreshold;
+        cfg.lowFireEnabled = lowFireEnabled;
+        cfg.lowFireHeight = lowFireHeight;
         return cfg;
     }
 
@@ -123,6 +128,8 @@ public class ModSettings {
         armorStatusSoundEnabled = cfg.armorStatusSoundEnabled;
         armorStatusTextEnabled = cfg.armorStatusTextEnabled;
         armorStatusThreshold = cfg.armorStatusThreshold;
+        lowFireEnabled = cfg.lowFireEnabled;
+        lowFireHeight = cfg.lowFireHeight;
         for (SwingStyle style : cfg.styleOffsets.keySet()) {
             Config.AnimationOffsets coff = cfg.styleOffsets.get(style);
             AnimationOffsets moff = styleOffsets.get(style);
