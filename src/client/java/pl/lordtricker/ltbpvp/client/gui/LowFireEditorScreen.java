@@ -5,6 +5,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.MathHelper;
 import pl.lordtricker.ltbpvp.client.config.ModSettings;
 
 public class LowFireEditorScreen extends Screen {
@@ -23,7 +24,8 @@ public class LowFireEditorScreen extends Screen {
         int cx = this.width / 2;
         int y  = (this.height - SPACE) / 2;
 
-        slider = new HeightSlider(cx - W / 2, y, W, H, ModSettings.lowFireHeight);
+        float clamped = MathHelper.clamp(ModSettings.lowFireHeight, -1f, 1f);
+        slider = new HeightSlider(cx - W / 2, y, W, H, clamped);
         addDrawableChild(slider);
 
         y += SPACE + 5;
@@ -50,20 +52,35 @@ public class LowFireEditorScreen extends Screen {
 
     private static class HeightSlider extends SliderWidget {
         HeightSlider(int x, int y, int w, int h, float height) {
-            super(x, y, w, h, Text.literal("Height: " + String.format("%.1f", height)), normalize(height));
+            super(x, y, w, h,
+                    Text.literal("Height: " + String.format("%.2f", height)),
+                    normalize(height));
         }
+
         @Override
         protected void updateMessage() {
             float val = denormalize(value);
-            this.setMessage(Text.literal("Height: " + String.format("%.1f", val)));
+            this.setMessage(Text.literal("Height: " + String.format("%.2f", val)));
         }
+
         @Override
         protected void applyValue() {
             ModSettings.lowFireHeight = denormalize(value);
         }
+
         void applySlider() { applyValue(); }
-        void setSliderValue(float v) { this.value = normalize(v); updateMessage(); }
-        private static double normalize(float v) { return (v + 20.0) / 40.0; }
-        private static float denormalize(double v) { return (float)(v * 40.0 - 20.0); }
+
+        void setSliderValue(float v) {
+            this.value = normalize(MathHelper.clamp(v, -1f, 1f));
+            updateMessage();
+        }
+
+        private static double normalize(float v) {
+            return (v + 1.0) / 2.0;
+        }
+
+        private static float denormalize(double v) {
+            return (float)(v * 2.0 - 1.0);
+        }
     }
 }
