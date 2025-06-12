@@ -33,6 +33,9 @@ public class Config {
     public boolean armorStatusTextEnabled = true;
     public int armorStatusThreshold = 25;
 
+    public boolean lowFireEnabled = false;
+    public float lowFireHeight = 0.0f;
+
     public Map<SwingStyle, AnimationOffsets> styleOffsets = new EnumMap<>(SwingStyle.class);
 
     public boolean offhandAnimationEnabled = false;

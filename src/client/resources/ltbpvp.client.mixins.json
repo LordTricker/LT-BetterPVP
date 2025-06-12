@@ -5,10 +5,11 @@
 	"mixins": [
 		"AttackDelayTutorHudMixin",
 		"AttackDelayTutorMixin",
-		"CustomHandMixin",
-		"TargetCrosshairMixin",
-		"ArmorStatusMixin"
-	],
+                "CustomHandMixin",
+                "TargetCrosshairMixin",
+                "ArmorStatusMixin",
+                "LowFireMixin"
+        ],
 	"injectors": {
 		"defaultRequire": 1
 	}

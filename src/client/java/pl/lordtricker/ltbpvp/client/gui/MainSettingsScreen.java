@@ -5,6 +5,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 import pl.lordtricker.ltbpvp.client.config.ModSettings;
+import pl.lordtricker.ltbpvp.client.gui.LowFireEditorScreen;
 
 public class MainSettingsScreen extends Screen {
     private boolean animationsEnabled;
@@ -25,6 +26,9 @@ public class MainSettingsScreen extends Screen {
     private ButtonWidget armorToggleButton;
     private ButtonWidget armorEditButton;
 
+    private ButtonWidget lowFireToggleButton;
+    private ButtonWidget lowFireEditButton;
+
     private int rowHeight;
     private final int labelAreaWidth = 120;
     private final int buttonAreaWidth = 100;
@@ -44,8 +48,8 @@ public class MainSettingsScreen extends Screen {
         rowHeight = 25;
         int btnHeight = 20;
 
-        /* 8 wierszy - 0 tutor, 1 sword, 2 offhand, 3 cursor, 4 armor, 5 autojump, 6 bobbing, 7 shake */
-        int totalLines       = 8;
+        /* 9 wierszy - 0 tutor, 1 sword, 2 offhand, 3 cursor, 4 armor, 5 lowfire, 6 autojump, 7 bobbing, 8 shake */
+        int totalLines       = 9;
         int totalBlockHeight = totalLines * rowHeight;
         this.startY          = (this.height - totalBlockHeight) / 2;
 
@@ -146,6 +150,25 @@ public class MainSettingsScreen extends Screen {
         addDrawableChild(armorEditButton);
         armorEditButton.active = ModSettings.armorStatusEnabled;
 
+        /* --- Low Fire ---------------------------------------------- */
+        y += rowHeight;
+        lowFireToggleButton = ButtonWidget.builder(
+                Text.of(getToggleDisplay(ModSettings.lowFireEnabled)),
+                btn -> {
+                    ModSettings.lowFireEnabled = !ModSettings.lowFireEnabled;
+                    btn.setMessage(Text.of(getToggleDisplay(ModSettings.lowFireEnabled)));
+                    lowFireEditButton.active = ModSettings.lowFireEnabled;
+                }
+        ).dimensions(buttonX, y, 80, btnHeight).build();
+        addDrawableChild(lowFireToggleButton);
+
+        lowFireEditButton = ButtonWidget.builder(
+                Text.of("..."),
+                btn -> this.client.setScreen(new LowFireEditorScreen(this))
+        ).dimensions(buttonX + 80, y, 20, btnHeight).build();
+        addDrawableChild(lowFireEditButton);
+        lowFireEditButton.active = ModSettings.lowFireEnabled;
+
         /* --- Minecraft‑owe przełączniki (auto‑jump, bobbing, shake) */
         MinecraftSettingsWidget mc = new MinecraftSettingsWidget();
         y += rowHeight;
@@ -188,9 +211,10 @@ public class MainSettingsScreen extends Screen {
         ctx.drawText(this.textRenderer, "OffHand Animation:",   labelX, startY + 2 * rowHeight + 5, 0xFFFFFF, false);
         ctx.drawText(this.textRenderer, "Cursor ESP:",          labelX, startY + 3 * rowHeight + 5, 0xFFFFFF, false);
         ctx.drawText(this.textRenderer, "Armor status:",        labelX, startY + 4 * rowHeight + 5, 0xFFFFFF, false);
-        ctx.drawText(this.textRenderer, "Auto Jump:",           labelX, startY + 5 * rowHeight + 5, 0xFFFFFF, false);
-        ctx.drawText(this.textRenderer, "View Bobbing:",        labelX, startY + 6 * rowHeight + 5, 0xFFFFFF, false);
-        ctx.drawText(this.textRenderer, "Screen Shake:",        labelX, startY + 7 * rowHeight + 5, 0xFFFFFF, false);
+        ctx.drawText(this.textRenderer, "Low Fire:",            labelX, startY + 5 * rowHeight + 5, 0xFFFFFF, false);
+        ctx.drawText(this.textRenderer, "Auto Jump:",           labelX, startY + 6 * rowHeight + 5, 0xFFFFFF, false);
+        ctx.drawText(this.textRenderer, "View Bobbing:",        labelX, startY + 7 * rowHeight + 5, 0xFFFFFF, false);
+        ctx.drawText(this.textRenderer, "Screen Shake:",        labelX, startY + 8 * rowHeight + 5, 0xFFFFFF, false);
     }
 
     private void drawCenteredTextLocal(DrawContext ctx, Text text, int y, int color) {
