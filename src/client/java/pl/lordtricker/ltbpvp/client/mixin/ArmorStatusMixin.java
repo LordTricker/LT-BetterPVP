@@ -19,7 +19,7 @@ public abstract class ArmorStatusMixin {
     @Unique private static final long COOLDOWN_MS = 5_000;
 
     /** Znacznik czasu ostatniego alarmu per slot. */
-    @Unique private final long[] lastAlert = {0, 0, 0, 0};
+    @Unique private final long[] lastAlert = new long[4];
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void onClientTick(CallbackInfo ci) {
