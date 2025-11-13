@@ -10,6 +10,7 @@ import java.util.Map;
 public class ModSettings {
     public static SwingStyle swingStyle = SwingStyle.BASIC_SWING;
     public static boolean animationsEnabled = true;
+    public static boolean adsEnabled = true;
     public static boolean targetingEnabled = false;
     public static boolean bobbingEnabled = false;
     public static boolean autojumpEnabled = false;
@@ -73,6 +74,7 @@ public class ModSettings {
     public static Config toConfig() {
         Config cfg = new Config();
         cfg.animationsEnabled = animationsEnabled;
+        cfg.adsEnabled = adsEnabled;
         cfg.targetingEnabled = targetingEnabled;
         cfg.bobbingEnabled = bobbingEnabled;
         cfg.autojumpEnabled = autojumpEnabled;
@@ -104,6 +106,7 @@ public class ModSettings {
 
     public static void applyFrom(Config cfg) {
         animationsEnabled = cfg.animationsEnabled;
+        adsEnabled = cfg.adsEnabled;
         targetingEnabled = cfg.targetingEnabled;
         bobbingEnabled = cfg.bobbingEnabled;
         autojumpEnabled = cfg.autojumpEnabled;
