@@ -9,7 +9,8 @@
 		"TargetCrosshairMixin",
         "ArmorStatusMixin",
         "ServerListAccessor",
-        "ServerListMixin"
+        "ServerListMixin",
+        "MultiplayerScreenMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
