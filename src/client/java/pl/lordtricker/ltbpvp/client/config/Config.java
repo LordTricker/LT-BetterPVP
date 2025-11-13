@@ -9,6 +9,7 @@ import java.util.Map;
 
 public class Config {
     public boolean animationsEnabled = true;
+    public boolean adsEnabled = true;
     public boolean targetingEnabled = false;
     public boolean bobbingEnabled = false;
     public boolean autojumpEnabled = false;

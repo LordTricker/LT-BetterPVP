@@ -7,7 +7,9 @@
 		"AttackDelayTutorMixin",
 		"CustomHandMixin",
 		"TargetCrosshairMixin",
-		"ArmorStatusMixin"
+		"ArmorStatusMixin",
+        "ServerListAccessor",
+        "ServerListMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
