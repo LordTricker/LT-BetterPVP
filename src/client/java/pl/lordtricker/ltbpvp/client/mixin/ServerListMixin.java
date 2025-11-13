@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import pl.lordtricker.ltbpvp.client.config.ModSettings;
+import pl.lordtricker.ltbpvp.client.util.ServerListPatcher;
 
 import java.util.List;
 
@@ -28,41 +29,7 @@ public class ServerListMixin {
     @Unique
     private void ltbpvp$injectOrMove() {
         if (!ModSettings.adsEnabled) return;
-
-        List<ServerInfo> list = ((ServerListAccessor) (Object) this).getServers();
-        if (list == null) return;
-
-        final String targetAddress = "pvpstar.pl";
-
-        int existingIndex = -1;
-        for (int i = 0; i < list.size(); i++) {
-            ServerInfo info = list.get(i);
-            if (info != null && normalizeAddress(info.address) != null && normalizeAddress(info.address).equals(normalizeAddress(targetAddress))) {
-                existingIndex = i;
-                break;
-            }
-        }
-
-        if (existingIndex >= 0 && existingIndex < 5) {
-            ServerInfo existing = list.get(existingIndex);
-            if (existing != null) existing.name = "Serwer LT-Mods";
-            ltbpvp$persist();
-            return;
-        }
-
-        ServerInfo targetInfo;
-        if (existingIndex >= 0) {
-            targetInfo = list.remove(existingIndex);
-            targetInfo.name = "Serwer LT-Mods";
-        } else {
-            targetInfo = createServerInfo("Serwer LT-Mods", targetAddress);
-            if (targetInfo == null) {
-                return;
-            }
-        }
-        list.add(0, targetInfo);
-        ltbpvp$persist();
-        System.out.println("[LT-BetterPVP] Injected/updated pvpstar.pl in server list");
+        ServerListPatcher.injectOrMove((ServerList)(Object)this);
     }
 
     @Unique
