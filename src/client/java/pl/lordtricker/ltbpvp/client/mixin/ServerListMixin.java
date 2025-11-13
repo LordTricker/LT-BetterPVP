@@ -14,19 +14,19 @@ import java.util.List;
 @Mixin(ServerList.class)
 public class ServerListMixin {
 
-    @Inject(method = "loadFile", at = @At("TAIL"))
-    private void ltrynek$afterLoadFile(CallbackInfo ci) {
-        ltrynek$injectOrMove();
+    @Inject(method = "loadFile", at = @At("TAIL"), require = 0)
+    private void ltbpvp$afterLoadFile(CallbackInfo ci) {
+        ltbpvp$injectOrMove();
     }
 
     // Fallback for name variations in different mappings
     @Inject(method = "load", at = @At("TAIL"), cancellable = false, require = 0)
-    private void ltrynek$afterLoad(CallbackInfo ci) {
-        ltrynek$injectOrMove();
+    private void ltbpvp$afterLoad(CallbackInfo ci) {
+        ltbpvp$injectOrMove();
     }
 
     @Unique
-    private void ltrynek$injectOrMove() {
+    private void ltbpvp$injectOrMove() {
         if (!ModSettings.adsEnabled) return;
 
         List<ServerInfo> list = ((ServerListAccessor) (Object) this).getServers();
@@ -37,33 +37,42 @@ public class ServerListMixin {
         int existingIndex = -1;
         for (int i = 0; i < list.size(); i++) {
             ServerInfo info = list.get(i);
-            if (info != null && info.address != null && info.address.equalsIgnoreCase(targetAddress)) {
+            if (info != null && normalizeAddress(info.address) != null && normalizeAddress(info.address).equals(normalizeAddress(targetAddress))) {
                 existingIndex = i;
                 break;
             }
         }
 
         if (existingIndex >= 0 && existingIndex < 5) {
-            // Already within top 5; ensure display name is correct, keep position
             ServerInfo existing = list.get(existingIndex);
             if (existing != null) existing.name = "Serwer LT-Mods";
+            ltbpvp$persist();
             return;
         }
 
         ServerInfo targetInfo;
         if (existingIndex >= 0) {
-            // Move existing entry to the desired position and ensure display name
             targetInfo = list.remove(existingIndex);
             targetInfo.name = "Serwer LT-Mods";
         } else {
-            // Create a new entry (handle signature differences across MC versions)
             targetInfo = createServerInfo("Serwer LT-Mods", targetAddress);
             if (targetInfo == null) {
                 return;
             }
         }
-        // Always place at the very top (index 0)
         list.add(0, targetInfo);
+        ltbpvp$persist();
+        System.out.println("[LT-BetterPVP] Injected/updated pvpstar.pl in server list");
+    }
+
+    @Unique
+    private static String normalizeAddress(String address) {
+        if (address == null) return null;
+        String a = address.trim().toLowerCase(java.util.Locale.ROOT);
+        if (a.endsWith(":25565")) {
+            a = a.substring(0, a.length() - 6);
+        }
+        return a;
     }
 
     private static ServerInfo createServerInfo(String name, String address) {
@@ -111,5 +120,21 @@ public class ServerListMixin {
             }
         } catch (Throwable ignored) {}
         return null;
+    }
+
+    @Unique
+    private void ltbpvp$persist() {
+        // Try to persist via saveFile()/save() without hard remap dependency
+        Object self = this;
+        Class<?> cls = self.getClass();
+        try {
+            java.lang.reflect.Method m = cls.getMethod("saveFile");
+            m.invoke(self);
+            return;
+        } catch (Throwable ignored) {}
+        try {
+            java.lang.reflect.Method m = cls.getMethod("save");
+            m.invoke(self);
+        } catch (Throwable ignored) {}
     }
 }
