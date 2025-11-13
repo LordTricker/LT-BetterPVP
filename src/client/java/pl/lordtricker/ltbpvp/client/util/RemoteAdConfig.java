@@ -38,8 +38,9 @@ public final class RemoteAdConfig {
     }
 
     public static String serverAddress() {
-        if (!fetched) return DEFAULT_ADDRESS;
-        // after successful fetch, explicit null disables injection
+        // Before first successful fetch: do not inject anything
+        if (!fetched) return null;
+        // After fetch: explicit null disables injection; blank treated as null
         return (cachedAddress != null && !cachedAddress.isBlank()) ? cachedAddress : null;
     }
 
