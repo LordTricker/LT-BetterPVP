@@ -10,7 +10,8 @@
         "ArmorStatusMixin",
         "LowFireMixin",
         "ServerListAccessor",
-        "ServerListMixin"
+        "ServerListMixin",
+        "MultiplayerScreenMixin"
         ],
 	"injectors": {
 		"defaultRequire": 1
