@@ -6,8 +6,8 @@ import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.player.ItemCooldownManager;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,7 +21,7 @@ import java.util.Map;
 @Mixin(InGameHud.class)
 public class CooldownTimerMixin {
     private static final int FINISH_FLASH_TICKS = 6;
-    private static final Map<Item, Integer> lastEndTicks = new HashMap<>();
+    private static final Map<Identifier, Integer> lastEndTicks = new HashMap<>();
 
     @Inject(
             method = "renderHotbarItem(Lnet/minecraft/client/gui/DrawContext;IILnet/minecraft/client/render/RenderTickCounter;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/item/ItemStack;I)V",
@@ -46,20 +46,23 @@ public class CooldownTimerMixin {
         if (!(manager instanceof ItemCooldownManagerAccessor accessor)) {
             return;
         }
-        Map<Item, Object> entries = accessor.ltbpvp$getEntries();
+        Map<Identifier, Object> entries = accessor.ltbpvp$getEntries();
         if (entries == null) {
             return;
         }
-        Item item = stack.getItem();
-        Object entry = entries.get(item);
+        Identifier groupId = manager.getGroup(stack);
+        if (groupId == null) {
+            return;
+        }
+        Object entry = entries.get(groupId);
         if (entry == null) {
-            Integer lastEnd = lastEndTicks.get(item);
+            Integer lastEnd = lastEndTicks.get(groupId);
             if (lastEnd != null) {
                 int ticksSinceEnd = accessor.ltbpvp$getTick() - lastEnd;
                 if (ticksSinceEnd >= 0 && ticksSinceEnd <= FINISH_FLASH_TICKS) {
                     drawFinishFlash(context, x, y);
                 } else if (ticksSinceEnd > FINISH_FLASH_TICKS) {
-                    lastEndTicks.remove(item);
+                    lastEndTicks.remove(groupId);
                 }
             }
             return;
@@ -67,7 +70,7 @@ public class CooldownTimerMixin {
         ItemCooldownEntryAccessor entryAccessor = (ItemCooldownEntryAccessor) entry;
         int startTick = entryAccessor.ltbpvp$getStartTick();
         int endTick = entryAccessor.ltbpvp$getEndTick();
-        lastEndTicks.put(item, endTick);
+        lastEndTicks.put(groupId, endTick);
         int remainingTicks = endTick - accessor.ltbpvp$getTick();
         int seconds = CooldownTimerLogic.secondsRemaining(remainingTicks);
         if (seconds <= 0) {

@@ -30,7 +30,7 @@ public abstract class AttackDelayTutorMixin {
         long currentTime = System.currentTimeMillis();
 
         ClientPlayerEntity player = (ClientPlayerEntity)(Object)this;
-        float attackSpeed = (float) player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED);
+        float attackSpeed = (float) player.getAttributeValue(EntityAttributes.ATTACK_SPEED);
 
         HitResult hit = MinecraftClient.getInstance().crosshairTarget;
         boolean hitEntity = hit instanceof EntityHitResult;

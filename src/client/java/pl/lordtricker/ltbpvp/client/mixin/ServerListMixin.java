@@ -11,7 +11,7 @@ import pl.lordtricker.ltbpvp.core.config.CoreSettings;
 
 @Mixin(ServerList.class)
 public class ServerListMixin {
-    @Inject(method = {"loadFile", "load"}, at = @At("TAIL"), require = 0)
+    @Inject(method = "loadFile", at = @At("TAIL"), require = 0)
     private void ltbpvp$afterLoad(CallbackInfo ci) {
         ltbpvp$injectOrMove();
     }
