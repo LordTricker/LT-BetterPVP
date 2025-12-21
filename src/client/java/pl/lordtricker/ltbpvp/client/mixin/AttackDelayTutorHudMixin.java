@@ -25,11 +25,11 @@ public abstract class AttackDelayTutorHudMixin {
             int x = (screenWidth - textWidth) / 2;
             int y = screenHeight / 2 + AttackDelayTutorHUD.Y_OFFSET;
 
-            context.getMatrices().push();
+            context.getMatrices().pushMatrix();
             float scale = AttackDelayTutorHUD.SCALE;
-            context.getMatrices().scale(scale, scale, scale);
-            context.drawText(client.textRenderer, text, (int)((x + AttackDelayTutorHUD.X_OFFSET) / scale), (int)(y / scale), 0xFF0000, true);
-            context.getMatrices().pop();
+            context.getMatrices().scale(scale, scale);
+            context.drawText(client.textRenderer, text, (int)((x + AttackDelayTutorHUD.X_OFFSET) / scale), (int)(y / scale), 0xFFFF0000, true);
+            context.getMatrices().popMatrix();
         }
     }
 }

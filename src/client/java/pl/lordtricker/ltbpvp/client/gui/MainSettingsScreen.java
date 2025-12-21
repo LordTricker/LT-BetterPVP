@@ -281,26 +281,30 @@ public class MainSettingsScreen extends Screen {
 
     @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
-        this.renderBackground(ctx, mouseX, mouseY, delta);
+        try {
+            this.applyBlur(ctx);
+        } catch (IllegalStateException ignored) {
+        }
+        this.renderInGameBackground(ctx);
         super.render(ctx, mouseX, mouseY, delta);
 
-        drawCenteredTextLocal(ctx, this.title, 10, 0xFFFFFF);
+        drawCenteredTextLocal(ctx, this.title, 10, 0xFFFFFFFF);
 
         int totalGroupWidth = labelAreaWidth + spacing + buttonAreaWidth;
         int labelX = (this.width - totalGroupWidth) / 2;
 
-        ctx.drawText(this.textRenderer, "Attack delay tutor:", labelX, startY + 0 * rowHeight + 5, 0xFFFFFF, false);
-        ctx.drawText(this.textRenderer, "Sword Animation:",     labelX, startY + 1 * rowHeight + 5, 0xFFFFFF, false);
-        ctx.drawText(this.textRenderer, "OffHand Animation:",   labelX, startY + 2 * rowHeight + 5, 0xFFFFFF, false);
-        ctx.drawText(this.textRenderer, "Cursor ESP:",          labelX, startY + 3 * rowHeight + 5, 0xFFFFFF, false);
-        ctx.drawText(this.textRenderer, "Armor status:",        labelX, startY + 4 * rowHeight + 5, 0xFFFFFF, false);
-        ctx.drawText(this.textRenderer, "Low Fire:",            labelX, startY + 5 * rowHeight + 5, 0xFFFFFF, false);
-        ctx.drawText(this.textRenderer, "Fishing Bobber:",      labelX, startY + 6 * rowHeight + 5, 0xFFFFFF, false);
+        ctx.drawText(this.textRenderer, "Attack delay tutor:", labelX, startY + 0 * rowHeight + 5, 0xFFFFFFFF, true);
+        ctx.drawText(this.textRenderer, "Sword Animation:",     labelX, startY + 1 * rowHeight + 5, 0xFFFFFFFF, true);
+        ctx.drawText(this.textRenderer, "OffHand Animation:",   labelX, startY + 2 * rowHeight + 5, 0xFFFFFFFF, true);
+        ctx.drawText(this.textRenderer, "Cursor ESP:",          labelX, startY + 3 * rowHeight + 5, 0xFFFFFFFF, true);
+        ctx.drawText(this.textRenderer, "Armor status:",        labelX, startY + 4 * rowHeight + 5, 0xFFFFFFFF, true);
+        ctx.drawText(this.textRenderer, "Low Fire:",            labelX, startY + 5 * rowHeight + 5, 0xFFFFFFFF, true);
+        ctx.drawText(this.textRenderer, "Fishing Bobber:",      labelX, startY + 6 * rowHeight + 5, 0xFFFFFFFF, true);
 
-        ctx.drawText(this.textRenderer, "Auto Jump:", compactLeft, compactLabelY, 0xFFFFFF, false);
-        ctx.drawText(this.textRenderer, "View Bobbing:", compactLeft + compactButtonWidth + compactGap, compactLabelY, 0xFFFFFF, false);
-        ctx.drawText(this.textRenderer, "Screen Shake:", compactLeft + (compactButtonWidth + compactGap) * 2, compactLabelY, 0xFFFFFF, false);
-        ctx.drawText(this.textRenderer, "Cooldown Timer:", compactLeft + (compactButtonWidth + compactGap) * 3, compactLabelY, 0xFFFFFF, false);
+        ctx.drawText(this.textRenderer, "Auto Jump:", compactLeft, compactLabelY, 0xFFFFFFFF, true);
+        ctx.drawText(this.textRenderer, "View Bobbing:", compactLeft + compactButtonWidth + compactGap, compactLabelY, 0xFFFFFFFF, true);
+        ctx.drawText(this.textRenderer, "Screen Shake:", compactLeft + (compactButtonWidth + compactGap) * 2, compactLabelY, 0xFFFFFFFF, true);
+        ctx.drawText(this.textRenderer, "Cooldown Timer:", compactLeft + (compactButtonWidth + compactGap) * 3, compactLabelY, 0xFFFFFFFF, true);
     }
 
     private void drawCenteredTextLocal(DrawContext ctx, Text text, int y, int color) {
@@ -309,3 +313,8 @@ public class MainSettingsScreen extends Screen {
         ctx.drawText(this.textRenderer, text, x, y, color, false);
     }
 }
+
+
+
+
+

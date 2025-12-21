@@ -53,9 +53,13 @@ public class AttackDelayTutorEditorScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
+        try {
+            this.applyBlur(context);
+        } catch (IllegalStateException ignored) {
+        }
+        this.renderInGameBackground(context);
         super.render(context, mouseX, mouseY, delta);
-        drawCenteredText(context, this.title, 10, 0xFFFFFF);
+        drawCenteredText(context, this.title, 10, 0xFFFFFFFF);
     }
 
     private void drawCenteredText(DrawContext context, Text text, int y, int color) {
@@ -64,3 +68,8 @@ public class AttackDelayTutorEditorScreen extends Screen {
         context.drawText(this.textRenderer, text, x, y, color, false);
     }
 }
+
+
+
+
+

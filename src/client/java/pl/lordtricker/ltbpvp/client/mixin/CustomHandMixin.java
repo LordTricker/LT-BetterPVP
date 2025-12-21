@@ -3,7 +3,7 @@ package pl.lordtricker.ltbpvp.client.mixin;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
-import net.minecraft.item.ModelTransformationMode;
+import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.BowItem;
 import net.minecraft.item.CrossbowItem;
@@ -77,10 +77,10 @@ public abstract class CustomHandMixin {
                 }
             }
             boolean isRight = player.getMainArm() == Arm.RIGHT;
-            ModelTransformationMode mode = isRight
-                    ? ModelTransformationMode.FIRST_PERSON_RIGHT_HAND
-                    : ModelTransformationMode.FIRST_PERSON_LEFT_HAND;
-            self.renderItem(player, stack, mode, !isRight, matrices, vertexConsumers, light);
+            ItemDisplayContext mode = isRight
+                    ? ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
+                    : ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
+            self.renderItem(player, stack, mode, matrices, vertexConsumers, light);
 
         } else if (hand == Hand.OFF_HAND) {
             if (player.isUsingItem() && player.getActiveHand() == Hand.OFF_HAND) {
@@ -93,10 +93,10 @@ public abstract class CustomHandMixin {
                 matrices.translate(off.offsetX, off.offsetY, off.offsetZ);
             }
             boolean isRight = player.getMainArm() == Arm.RIGHT;
-            ModelTransformationMode mode = isRight
-                    ? ModelTransformationMode.FIRST_PERSON_LEFT_HAND
-                    : ModelTransformationMode.FIRST_PERSON_RIGHT_HAND;
-            self.renderItem(player, stack, mode, isRight, matrices, vertexConsumers, light);
+            ItemDisplayContext mode = isRight
+                    ? ItemDisplayContext.FIRST_PERSON_LEFT_HAND
+                    : ItemDisplayContext.FIRST_PERSON_RIGHT_HAND;
+            self.renderItem(player, stack, mode, matrices, vertexConsumers, light);
         }
         matrices.pop();
     }

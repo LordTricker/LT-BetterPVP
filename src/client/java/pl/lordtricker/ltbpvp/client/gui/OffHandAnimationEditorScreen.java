@@ -81,10 +81,14 @@ public class OffHandAnimationEditorScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
+        try {
+            this.applyBlur(context);
+        } catch (IllegalStateException ignored) {
+        }
+        this.renderInGameBackground(context);
         super.render(context, mouseX, mouseY, delta);
         int titleWidth = this.textRenderer.getWidth(this.title);
-        context.drawText(this.textRenderer, this.title, (this.width - titleWidth) / 2, 10, 0xFFFFFF, false);
+        context.drawText(this.textRenderer, this.title, (this.width - titleWidth) / 2, 10, 0xFFFFFFFF, true);
     }
 
     /**
@@ -136,3 +140,8 @@ public class OffHandAnimationEditorScreen extends Screen {
         }
     }
 }
+
+
+
+
+

@@ -119,10 +119,14 @@ public class TargetEditorScreen extends Screen {
 
     @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
-        this.renderBackground(ctx, mouseX, mouseY, delta);
+        try {
+            this.applyBlur(ctx);
+        } catch (IllegalStateException ignored) {
+        }
+        this.renderInGameBackground(ctx);
         super.render(ctx, mouseX, mouseY, delta);
         int w = this.textRenderer.getWidth(this.title);
-        ctx.drawText(this.textRenderer, this.title, (this.width - w) / 2, 10, 0xFFFFFF, false);
+        ctx.drawText(this.textRenderer, this.title, (this.width - w) / 2, 10, 0xFFFFFFFF, true);
     }
 
     private class ColorSliderWidget extends SliderWidget {
@@ -184,3 +188,8 @@ public class TargetEditorScreen extends Screen {
         }
     }
 }
+
+
+
+
+

@@ -4,19 +4,13 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderPhase;
-import net.minecraft.client.gl.ShaderProgramKeys;
-import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.TriState;
+import org.joml.Matrix3x2fStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -47,11 +41,11 @@ public class TargetCrosshairMixin {
         if (distanceSq > reachDistance * reachDistance) {
             return;
         }
-        MatrixStack matrices = context.getMatrices();
+        Matrix3x2fStack matrices = context.getMatrices();
         renderCustomTargetCrosshair(context, matrices);
     }
 
-    private void renderCustomTargetCrosshair(DrawContext context, MatrixStack matrices) {
+    private void renderCustomTargetCrosshair(DrawContext context, Matrix3x2fStack matrices) {
         MinecraftClient client = MinecraftClient.getInstance();
         int screenWidth = client.getWindow().getScaledWidth();
         int screenHeight = client.getWindow().getScaledHeight();
@@ -75,34 +69,16 @@ public class TargetCrosshairMixin {
         int blue = Math.round(color[2] * 255.0F);
         int argb = 0xFF000000 | (red << 16) | (green << 8) | blue;
 
-        matrices.push();
-        matrices.translate(centerX, centerY, 0);
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angle));
+        matrices.pushMatrix();
+        matrices.translate(centerX, centerY);
+        matrices.rotate((float) Math.toRadians(angle));
 
         Identifier texture = Identifier.of(
                 CoreSettings.targetStyle.getNamespace(),
                 CoreSettings.targetStyle.getPath()
         );
-        RenderLayer layer = RenderLayer.of(
-                "target_crosshair_rgb",
-                VertexFormats.POSITION_TEXTURE_COLOR,
-                VertexFormat.DrawMode.QUADS,
-                256,
-                false,
-                true,
-                RenderLayer.MultiPhaseParameters.builder()
-                        .program(new RenderPhase.ShaderProgram(ShaderProgramKeys.POSITION_TEX_COLOR))
-                        .texture(new RenderPhase.Texture(texture, TriState.FALSE, false))
-                        .transparency(RenderPhase.Transparency.TRANSLUCENT_TRANSPARENCY)
-                        .lightmap(RenderPhase.Lightmap.DISABLE_LIGHTMAP)
-                        .overlay(RenderPhase.Overlay.DISABLE_OVERLAY_COLOR)
-                        .cull(RenderPhase.Cull.DISABLE_CULLING)
-                        .depthTest(RenderPhase.DepthTest.ALWAYS_DEPTH_TEST)
-                        .build(true)
-        );
-
         context.drawTexture(
-                id -> layer,
+                RenderPipelines.GUI_TEXTURED,
                 texture,
                 -size / 2,
                 -size / 2,
@@ -115,8 +91,7 @@ public class TargetCrosshairMixin {
                 argb
         );
 
-        matrices.pop();
+        matrices.popMatrix();
     }
 
 }
-

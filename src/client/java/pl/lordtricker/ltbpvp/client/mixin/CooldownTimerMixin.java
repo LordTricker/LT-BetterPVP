@@ -84,11 +84,10 @@ public class CooldownTimerMixin {
         float centerY = y + 9;
         float drawX = (centerX - (width / 2.0f)) / scale;
         float drawY = (centerY - (client.textRenderer.fontHeight / 2.0f)) / scale;
-        context.getMatrices().push();
-        context.getMatrices().translate(0.0f, 0.0f, 200.0f);
-        context.getMatrices().scale(scale, scale, 1.0f);
+        context.getMatrices().pushMatrix();
+        context.getMatrices().scale(scale, scale);
         context.drawText(client.textRenderer, text, Math.round(drawX), Math.round(drawY), 0xFFFF0000, true);
-        context.getMatrices().pop();
+        context.getMatrices().popMatrix();
         drawCooldownBar(context, x, y, startTick, endTick, remainingTicks);
     }
 

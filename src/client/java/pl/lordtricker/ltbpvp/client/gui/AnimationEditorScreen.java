@@ -143,10 +143,14 @@ public class AnimationEditorScreen extends Screen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
+        try {
+            this.applyBlur(context);
+        } catch (IllegalStateException ignored) {
+        }
+        this.renderInGameBackground(context);
         super.render(context, mouseX, mouseY, delta);
 
-        drawCenteredTextLocal(context, this.title, 10, 0xFFFFFF);
+        drawCenteredTextLocal(context, this.title, 10, 0xFFFFFFFF);
     }
 
     /**
@@ -210,3 +214,8 @@ public class AnimationEditorScreen extends Screen {
         }
     }
 }
+
+
+
+
+
