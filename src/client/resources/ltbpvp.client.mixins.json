@@ -1,18 +1,24 @@
 {
-	"required": true,
-	"package": "pl.lordtricker.ltbpvp.client.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"AttackDelayTutorHudMixin",
-		"AttackDelayTutorMixin",
-		"CustomHandMixin",
-		"TargetCrosshairMixin",
-		"ArmorStatusMixin",
-        "ServerListAccessor",
-        "ServerListMixin",
-        "MultiplayerScreenMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	}
+  "required": true,
+  "package": "pl.lordtricker.ltbpvp.client.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ArmorStatusMixin",
+    "AttackDelayTutorHudMixin",
+    "AttackDelayTutorMixin",
+    "CustomHandMixin",
+    "CooldownTimerMixin",
+    "ItemCooldownEntryAccessor",
+    "ItemCooldownManagerAccessor",
+    "FishingBobberMixin",
+    "MultiplayerScreenMixin",
+    "ServerListAccessor",
+    "ServerListMixin",
+    "TargetCrosshairMixin",
+    "LowFireMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": []
 }

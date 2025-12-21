@@ -17,7 +17,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import pl.lordtricker.ltbpvp.client.config.ModSettings;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings;
+import pl.lordtricker.ltbpvp.core.logic.TargetCrosshairLogic;
 
 @Mixin(InGameHud.class)
 public class TargetCrosshairMixin {
@@ -25,7 +26,7 @@ public class TargetCrosshairMixin {
     @Inject(method = "renderCrosshair", at = @At("RETURN"))
     private void onRenderCrosshair(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();
-        if (!ModSettings.targetingEnabled) {
+        if (!CoreSettings.targetingEnabled) {
             return;
         }
         HitResult hitResult = client.crosshairTarget;
@@ -53,21 +54,17 @@ public class TargetCrosshairMixin {
         int centerX = screenWidth / 2;
         int centerY = screenHeight / 2;
 
-        int size = ModSettings.targetRange;
+        int size = CoreSettings.targetRange;
 
-        float angle = (System.currentTimeMillis() % 36000L) / 100.0F;
-
-        float red, green, blue;
-        if (ModSettings.rgbEnabled) {
-            float time = ((System.currentTimeMillis() % 2000L) / 2000.0F) * (float)Math.PI * 2.0F;
-            red   = 0.5F + 0.5F * (float)Math.sin(time);
-            green = 0.5F + 0.5F * (float)Math.sin(time + (2 * Math.PI / 3));
-            blue  = 0.5F + 0.5F * (float)Math.sin(time + (4 * Math.PI / 3));
-        } else {
-            red   = ModSettings.customRed;
-            green = ModSettings.customGreen;
-            blue  = ModSettings.customBlue;
-        }
+        long nowMs = System.currentTimeMillis();
+        float angle = TargetCrosshairLogic.computeAngleDegrees(nowMs);
+        float[] color = TargetCrosshairLogic.computeColor(
+                nowMs,
+                CoreSettings.rgbEnabled,
+                CoreSettings.customRed,
+                CoreSettings.customGreen,
+                CoreSettings.customBlue
+        );
 
         matrices.push();
         matrices.translate(centerX, centerY, 0);
@@ -76,9 +73,9 @@ public class TargetCrosshairMixin {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-        RenderSystem.setShaderColor(red, green, blue, 1.0F);
+        RenderSystem.setShaderColor(color[0], color[1], color[2], 1.0F);
 
-        Identifier texture = ModSettings.targetStyle.getTexture();
+        Identifier texture = Identifier.of(CoreSettings.targetStyle.getNamespace(), CoreSettings.targetStyle.getPath());
         RenderSystem.setShaderTexture(0, texture);
 
         context.drawTexture(texture, -size / 2, -size / 2, 0, 0, size, size, size, size);
@@ -89,3 +86,4 @@ public class TargetCrosshairMixin {
     }
 
 }
+

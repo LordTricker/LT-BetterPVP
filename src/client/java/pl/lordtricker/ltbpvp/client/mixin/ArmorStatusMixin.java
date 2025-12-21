@@ -9,21 +9,18 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import pl.lordtricker.ltbpvp.client.config.ModSettings;
-import pl.lordtricker.ltbpvp.client.hud.AttackDelayTutorHUD;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings;
+import pl.lordtricker.ltbpvp.core.hud.AttackDelayTutorHUD;
+import pl.lordtricker.ltbpvp.core.logic.ArmorStatusLogic;
 
 /** Jeden alert na 5s na slot – kropka. */
 @Mixin(ClientPlayerEntity.class)
 public abstract class ArmorStatusMixin {
-
-    @Unique private static final long COOLDOWN_MS = 5_000;
-
-    /** Znacznik czasu ostatniego alarmu per slot. */
-    @Unique private final long[] lastAlert = {0, 0, 0, 0};
+    @Unique private final ArmorStatusLogic ltbpvp$logic = new ArmorStatusLogic();
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void onClientTick(CallbackInfo ci) {
-        if (!ModSettings.armorStatusEnabled) return;
+        if (!CoreSettings.armorStatusEnabled) return;
 
         ClientPlayerEntity player = (ClientPlayerEntity)(Object)this;
         long now = System.currentTimeMillis();
@@ -43,23 +40,27 @@ public abstract class ArmorStatusMixin {
             ItemStack stack = player.getEquippedStack(slot);
             if (stack.isEmpty() || !stack.isDamageable()) continue;
 
-            int pct = (int)((stack.getMaxDamage() - stack.getDamage())
-                    * 100.0 / stack.getMaxDamage());
+            int pct = (int)((stack.getMaxDamage() - stack.getDamage()) * 100.0 / stack.getMaxDamage());
 
-            if (pct <= ModSettings.armorStatusThreshold
-                    && now - lastAlert[idx] >= COOLDOWN_MS) {
+            ArmorStatusLogic.Result result = ltbpvp$logic.checkArmor(
+                    idx,
+                    pct,
+                    stack.getName().getString(),
+                    now,
+                    CoreSettings.armorStatusThreshold,
+                    CoreSettings.armorStatusTextEnabled,
+                    CoreSettings.armorStatusSoundEnabled
+            );
 
-                lastAlert[idx] = now;
-
-                if (ModSettings.armorStatusTextEnabled) {
-                    AttackDelayTutorHUD.setMessage(
-                            stack.getName().getString() + " spadł poniżej " + pct + "%!", 1500);
+            if (result != null) {
+                if (result.showText()) {
+                    AttackDelayTutorHUD.setMessage(result.message(), result.durationMs());
                 }
-                if (ModSettings.armorStatusSoundEnabled) {
-                    player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_CHIME.value()
-                    );
+                if (result.playSound()) {
+                    player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_CHIME.value());
                 }
             }
         }
     }
 }
+

@@ -7,26 +7,28 @@ import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.BowItem;
 import net.minecraft.item.CrossbowItem;
+import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.TridentItem;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import pl.lordtricker.ltbpvp.client.config.ModSettings;
-import pl.lordtricker.ltbpvp.client.config.ModSettings.AnimationOffsets;
-import pl.lordtricker.ltbpvp.client.enums.SwingStyle;
+import pl.lordtricker.ltbpvp.core.animation.HandAnimationLogic;
+import pl.lordtricker.ltbpvp.core.animation.TransformSink;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings.AnimationOffsets;
+import pl.lordtricker.ltbpvp.core.enums.SwingStyle;
 
 @Mixin(HeldItemRenderer.class)
 public abstract class CustomHandMixin {
 
     @Inject(
-            method = "renderFirstPersonItem(Lnet/minecraft/client/network/AbstractClientPlayerEntity;FFLnet/minecraft/util/Hand;FLnet/minecraft/item/ItemStack;FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+            method = "renderFirstPersonItem",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -46,7 +48,10 @@ public abstract class CustomHandMixin {
         if (stack.getItem() instanceof BowItem || stack.getItem() instanceof CrossbowItem || stack.getItem() instanceof TridentItem) {
             return;
         }
-        if (!ModSettings.animationsEnabled) {
+        if (stack.isOf(Items.FILLED_MAP) || stack.isOf(Items.MAP) || stack.isOf(Items.PAPER)) {
+            return;
+        }
+        if (!CoreSettings.animationsEnabled) {
             return;
         }
         if (hand == Hand.MAIN_HAND && stack.isEmpty()) {
@@ -59,13 +64,14 @@ public abstract class CustomHandMixin {
         ci.cancel();
         matrices.push();
         HeldItemRenderer self = (HeldItemRenderer)(Object) this;
+        TransformSink sink = new MatrixTransformSink(matrices);
 
         if (hand == Hand.MAIN_HAND) {
             if (player.isUsingItem() && player.getActiveHand() == Hand.MAIN_HAND) {
-                applyMainHandEatTransform(matrices, stack, player);
+                HandAnimationLogic.applyMainHandEat(sink, player.getItemUseTimeLeft(), stack.getMaxUseTime(player));
             } else {
-                applyCustomMainHandSwing(matrices, swingProgress, ModSettings.swingStyle);
-                AnimationOffsets offsets = ModSettings.styleOffsets.get(ModSettings.swingStyle);
+                HandAnimationLogic.applyMainHandSwing(sink, swingProgress, CoreSettings.swingStyle);
+                AnimationOffsets offsets = CoreSettings.styleOffsets.get(CoreSettings.swingStyle);
                 if (offsets != null) {
                     matrices.translate(offsets.offsetX, offsets.offsetY, offsets.offsetZ);
                 }
@@ -78,12 +84,12 @@ public abstract class CustomHandMixin {
 
         } else if (hand == Hand.OFF_HAND) {
             if (player.isUsingItem() && player.getActiveHand() == Hand.OFF_HAND) {
-                applyLeftHandEatTransform(matrices, stack, player);
+                HandAnimationLogic.applyLeftHandEat(sink, player.getItemUseTimeLeft(), stack.getMaxUseTime(player));
             } else {
-                applyLeftHandStaticTransform(matrices);
+                HandAnimationLogic.applyLeftHandStatic(sink);
             }
-            if (ModSettings.offhandAnimationEnabled) {
-                AnimationOffsets off = ModSettings.offhandOffsets;
+            if (CoreSettings.offhandAnimationEnabled) {
+                AnimationOffsets off = CoreSettings.offhandOffsets;
                 matrices.translate(off.offsetX, off.offsetY, off.offsetZ);
             }
             boolean isRight = player.getMainArm() == Arm.RIGHT;
@@ -95,68 +101,37 @@ public abstract class CustomHandMixin {
         matrices.pop();
     }
 
-    private void applyCustomMainHandSwing(MatrixStack matrices, float swingProgress, SwingStyle style) {
-        float rad = swingProgress * (float)Math.PI;
-        float sin = MathHelper.sin(rad);
-        switch (style) {
-            case BASIC_SWING -> {
-                matrices.translate(0.4, -0.25, -0.6);
-                matrices.scale(0.50F, 0.50F, 0.50F);
-                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-95.0F * sin));
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(35.0F * sin));
-            }
-            case BASIC_CLAP -> {
-                matrices.translate(0.4, -0.25, -0.6);
-                matrices.scale(0.50F, 0.50F, 0.50F);
-                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-85.0F * sin));
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-110.0F * sin));
-            }
-            case SWIPE_IN -> {
-                matrices.translate(1.3, -0.7, -2.6);
-                matrices.scale(1.4F, 1.4F, 1.4F);
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-60.0F - 60.0F * sin));
-                matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(75.0F - 3.0F * sin));
-            }
-            case SWIPE_OUT -> {
-                matrices.translate(1.3, -0.7, -2.6);
-                matrices.scale(1.4F, 1.4F, 1.4F);
-                matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-60.0F + 60.0F * sin));
-                matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(75.0F + 20.0F * sin));
-            }
-            case NO_SWING -> {
-                matrices.translate(0.4, -0.25, -0.6);
-                matrices.scale(0.50F, 0.50F, 0.50F);
-            }
+    private static final class MatrixTransformSink implements TransformSink {
+        private final MatrixStack matrices;
+
+        private MatrixTransformSink(MatrixStack matrices) {
+            this.matrices = matrices;
+        }
+
+        @Override
+        public void translate(double x, double y, double z) {
+            matrices.translate(x, y, z);
+        }
+
+        @Override
+        public void scale(float x, float y, float z) {
+            matrices.scale(x, y, z);
+        }
+
+        @Override
+        public void rotateX(float degrees) {
+            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(degrees));
+        }
+
+        @Override
+        public void rotateY(float degrees) {
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(degrees));
+        }
+
+        @Override
+        public void rotateZ(float degrees) {
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(degrees));
         }
     }
-
-    private void applyMainHandEatTransform(MatrixStack matrices, ItemStack item, AbstractClientPlayerEntity player) {
-        float timeLeft = player.getItemUseTimeLeft();
-        float maxTime = item.getMaxUseTime(player);
-        float progress = 1.0F - timeLeft / maxTime;
-        float sin = MathHelper.sin(Math.min(progress * 1.2F, 1.0F) * (float)Math.PI);
-        matrices.translate(0.56f, -0.5f, -0.8f);
-        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-40.0F));
-        matrices.translate(0.0f, sin * 0.1f, 0.0f);
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(sin * 20.0F));
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(sin * 10.0F));
-        matrices.scale(0.7f, 0.7f, 0.7f);
-    }
-
-    private void applyLeftHandStaticTransform(MatrixStack matrices) {
-        matrices.translate(-0.62f, -0.5f, -0.95f);
-        matrices.scale(0.7f, 0.7f, 0.7f);
-    }
-
-    private void applyLeftHandEatTransform(MatrixStack matrices, ItemStack item, AbstractClientPlayerEntity player) {
-        float timeLeft = player.getItemUseTimeLeft();
-        float maxTime = item.getMaxUseTime(player);
-        float sin = MathHelper.sin(Math.min((1.0F - timeLeft / maxTime) * 1.5F, 1.0F) * (float)Math.PI);
-        matrices.translate(-0.62f, -0.6f, -0.8f);
-        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(40.0F));
-        matrices.translate(0.0f, sin * 0.07f, 0.0f);
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-15.0F * sin));
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-7.0F * sin));
-        matrices.scale(0.7f, 0.7f, 0.7f);
-    }
 }
+

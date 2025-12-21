@@ -1,13 +1,13 @@
-package pl.lordtricker.ltbpvp.client.config;
+package pl.lordtricker.ltbpvp.core.config;
 
-import pl.lordtricker.ltbpvp.client.enums.CrosshairColor;
-import pl.lordtricker.ltbpvp.client.enums.SwingStyle;
-import pl.lordtricker.ltbpvp.client.enums.TargetStyle;
+import pl.lordtricker.ltbpvp.core.enums.CrosshairColor;
+import pl.lordtricker.ltbpvp.core.enums.SwingStyle;
+import pl.lordtricker.ltbpvp.core.enums.TargetStyle;
 
 import java.util.EnumMap;
 import java.util.Map;
 
-public class Config {
+public class CoreConfig {
     public boolean animationsEnabled = true;
     public boolean adsEnabled = true;
     public boolean targetingEnabled = false;
@@ -34,12 +34,21 @@ public class Config {
     public boolean armorStatusTextEnabled = true;
     public int armorStatusThreshold = 25;
 
+    public boolean lowFireEnabled = true;
+    public float lowFireHeight = -0.08f;
+
+    public boolean fishingBobberEnabled = false;
+    public float fishingBobberOffsetY = 0.0f;
+    public float fishingBobberScale = 1.0f;
+
+    public boolean cooldownTimerEnabled = false;
+
     public Map<SwingStyle, AnimationOffsets> styleOffsets = new EnumMap<>(SwingStyle.class);
 
     public boolean offhandAnimationEnabled = false;
     public AnimationOffsets offhandOffsets = new AnimationOffsets(0.0f, 0.0f, 0.0f);
 
-    public Config() {
+    public CoreConfig() {
         for (SwingStyle style : SwingStyle.values()) {
             AnimationOffsets off = new AnimationOffsets(0.0f, 0.0f, 0.0f);
             styleOffsets.put(style, off);

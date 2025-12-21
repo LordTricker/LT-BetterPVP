@@ -5,7 +5,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
-import pl.lordtricker.ltbpvp.client.config.ModSettings;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings;
 
 public class ArmorStatusEditorScreen extends Screen {
 
@@ -28,34 +28,34 @@ public class ArmorStatusEditorScreen extends Screen {
         int y  = (this.height - 4 * SPACE) / 2;
 
         soundToggle = ButtonWidget.builder(
-                Text.of("Sound: " + (ModSettings.armorStatusSoundEnabled ? "ON" : "OFF")),
+                Text.of("Sound: " + (CoreSettings.armorStatusSoundEnabled ? "ON" : "OFF")),
                 b -> {
-                    ModSettings.armorStatusSoundEnabled = !ModSettings.armorStatusSoundEnabled;
-                    b.setMessage(Text.of("Sound: " + (ModSettings.armorStatusSoundEnabled ? "ON" : "OFF")));
+                    CoreSettings.armorStatusSoundEnabled = !CoreSettings.armorStatusSoundEnabled;
+                    b.setMessage(Text.of("Sound: " + (CoreSettings.armorStatusSoundEnabled ? "ON" : "OFF")));
                 }
         ).dimensions(cx - W / 2, y, W, H).build();
         addDrawableChild(soundToggle);
 
         y += SPACE;
         textToggle = ButtonWidget.builder(
-                Text.of("Text: " + (ModSettings.armorStatusTextEnabled ? "ON" : "OFF")),
+                Text.of("Text: " + (CoreSettings.armorStatusTextEnabled ? "ON" : "OFF")),
                 b -> {
-                    ModSettings.armorStatusTextEnabled = !ModSettings.armorStatusTextEnabled;
-                    b.setMessage(Text.of("Text: " + (ModSettings.armorStatusTextEnabled ? "ON" : "OFF")));
+                    CoreSettings.armorStatusTextEnabled = !CoreSettings.armorStatusTextEnabled;
+                    b.setMessage(Text.of("Text: " + (CoreSettings.armorStatusTextEnabled ? "ON" : "OFF")));
                 }
         ).dimensions(cx - W / 2, y, W, H).build();
         addDrawableChild(textToggle);
 
         y += SPACE;
         thresholdSlider = new ThresholdSlider(cx - W / 2, y, W, H,
-                ModSettings.armorStatusThreshold / 100.0);
+                CoreSettings.armorStatusThreshold / 100.0);
         addDrawableChild(thresholdSlider);
 
         y += SPACE + 5;
         ButtonWidget reset = ButtonWidget.builder(Text.of("Reset"), b -> {
-            ModSettings.armorStatusSoundEnabled = true;
-            ModSettings.armorStatusTextEnabled  = true;
-            ModSettings.armorStatusThreshold    = 25;
+            CoreSettings.armorStatusSoundEnabled = true;
+            CoreSettings.armorStatusTextEnabled  = true;
+            CoreSettings.armorStatusThreshold    = 25;
             soundToggle.setMessage(Text.of("Sound: ON"));
             textToggle .setMessage(Text.of("Text:  ON"));
             thresholdSlider.setSliderValue(0.25);
@@ -64,7 +64,7 @@ public class ArmorStatusEditorScreen extends Screen {
 
         // Save
         ButtonWidget save = ButtonWidget.builder(Text.of("Save"), b -> {
-            ModSettings.armorStatusThreshold =
+            CoreSettings.armorStatusThreshold =
                     (int)(thresholdSlider.getSliderValue() * 100);
             this.client.setScreen(parent);
         }).dimensions(cx - 50, this.height - 30, 100, H).build();

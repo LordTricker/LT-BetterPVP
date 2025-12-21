@@ -1,4 +1,4 @@
-package pl.lordtricker.ltbpvp.client.enums;
+package pl.lordtricker.ltbpvp.core.enums;
 
 public enum CrosshairColor {
     YELLOW,

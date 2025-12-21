@@ -5,8 +5,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
-import pl.lordtricker.ltbpvp.client.config.ModSettings;
-import pl.lordtricker.ltbpvp.client.enums.TargetStyle;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings;
+import pl.lordtricker.ltbpvp.core.enums.TargetStyle;
 
 public class TargetEditorScreen extends Screen {
 
@@ -35,22 +35,22 @@ public class TargetEditorScreen extends Screen {
         int y = startY;
 
         ButtonWidget targetStyleButton = ButtonWidget.builder(
-                Text.of("Style: " + ModSettings.targetStyle.name()),
+                Text.of("Style: " + CoreSettings.targetStyle.name()),
                 btn -> {
                     TargetStyle[] styles = TargetStyle.values();
-                    int idx = (ModSettings.targetStyle.ordinal() + 1) % styles.length;
-                    ModSettings.targetStyle = styles[idx];
-                    btn.setMessage(Text.of("Style: " + ModSettings.targetStyle.name()));
+                    int idx = (CoreSettings.targetStyle.ordinal() + 1) % styles.length;
+                    CoreSettings.targetStyle = styles[idx];
+                    btn.setMessage(Text.of("Style: " + CoreSettings.targetStyle.name()));
                 }
         ).dimensions(centerX - WIDGET_WIDTH / 2, y, WIDGET_WIDTH, WIDGET_HEIGHT).build();
         addDrawableChild(targetStyleButton);
 
         y += ROW_SPACING;
         rgbToggleButton = ButtonWidget.builder(
-                Text.of("RGB Color: " + (ModSettings.rgbEnabled ? "ON" : "OFF")),
+                Text.of("RGB Color: " + (CoreSettings.rgbEnabled ? "ON" : "OFF")),
                 btn -> {
-                    ModSettings.rgbEnabled = !ModSettings.rgbEnabled;
-                    btn.setMessage(Text.of("RGB Color: " + (ModSettings.rgbEnabled ? "ON" : "OFF")));
+                    CoreSettings.rgbEnabled = !CoreSettings.rgbEnabled;
+                    btn.setMessage(Text.of("RGB Color: " + (CoreSettings.rgbEnabled ? "ON" : "OFF")));
                 }
         ).dimensions(centerX - WIDGET_WIDTH / 2, y, WIDGET_WIDTH, WIDGET_HEIGHT).build();
         addDrawableChild(rgbToggleButton);
@@ -58,29 +58,29 @@ public class TargetEditorScreen extends Screen {
         y += ROW_SPACING;
         redSlider = new ColorSliderWidget(
                 "Red", centerX - WIDGET_WIDTH / 2, y, WIDGET_WIDTH, WIDGET_HEIGHT,
-                ModSettings.customRed
+                CoreSettings.customRed
         );
         addDrawableChild(redSlider);
 
         y += ROW_SPACING;
         greenSlider = new ColorSliderWidget(
                 "Green", centerX - WIDGET_WIDTH / 2, y, WIDGET_WIDTH, WIDGET_HEIGHT,
-                ModSettings.customGreen
+                CoreSettings.customGreen
         );
         addDrawableChild(greenSlider);
 
         y += ROW_SPACING;
         blueSlider = new ColorSliderWidget(
                 "Blue", centerX - WIDGET_WIDTH / 2, y, WIDGET_WIDTH, WIDGET_HEIGHT,
-                ModSettings.customBlue
+                CoreSettings.customBlue
         );
         addDrawableChild(blueSlider);
 
         y += ROW_SPACING;
-        double normalized = (ModSettings.targetRange - 16) / 32.0;
+        double normalized = (CoreSettings.targetRange - 16) / 32.0;
         rangeSlider = new RangeSliderWidget(
                 centerX - WIDGET_WIDTH / 2, y, WIDGET_WIDTH, WIDGET_HEIGHT,
-                Text.literal("Size: " + ModSettings.targetRange + "px"),
+                Text.literal("Size: " + CoreSettings.targetRange + "px"),
                 normalized
         );
         addDrawableChild(rangeSlider);
@@ -89,17 +89,17 @@ public class TargetEditorScreen extends Screen {
         ButtonWidget resetButton = ButtonWidget.builder(
                 Text.of("Reset"),
                 btn -> {
-                    ModSettings.rgbEnabled = true;
-                    ModSettings.customRed = 1.0f;
-                    ModSettings.customGreen = 1.0f;
-                    ModSettings.customBlue = 1.0f;
-                    ModSettings.targetRange = 24;
+                    CoreSettings.rgbEnabled = true;
+                    CoreSettings.customRed = 1.0f;
+                    CoreSettings.customGreen = 1.0f;
+                    CoreSettings.customBlue = 1.0f;
+                    CoreSettings.targetRange = 24;
 
                     rgbToggleButton.setMessage(Text.of("RGB Color: ON"));
-                    redSlider.setSliderValue(ModSettings.customRed);
-                    greenSlider.setSliderValue(ModSettings.customGreen);
-                    blueSlider.setSliderValue(ModSettings.customBlue);
-                    rangeSlider.setSliderValue((ModSettings.targetRange - 16) / 32.0);
+                    redSlider.setSliderValue(CoreSettings.customRed);
+                    greenSlider.setSliderValue(CoreSettings.customGreen);
+                    blueSlider.setSliderValue(CoreSettings.customBlue);
+                    rangeSlider.setSliderValue((CoreSettings.targetRange - 16) / 32.0);
                 }
         ).dimensions(centerX - WIDGET_WIDTH / 2, y, WIDGET_WIDTH, WIDGET_HEIGHT).build();
         addDrawableChild(resetButton);
@@ -110,7 +110,7 @@ public class TargetEditorScreen extends Screen {
                     redSlider.applySlider();
                     greenSlider.applySlider();
                     blueSlider.applySlider();
-                    ModSettings.targetRange = (int) (16 + rangeSlider.getSliderValue() * 32);
+                    CoreSettings.targetRange = (int) (16 + rangeSlider.getSliderValue() * 32);
                     this.client.setScreen(parentScreen);
                 }
         ).dimensions(centerX - 50, this.height - 30, 100, WIDGET_HEIGHT).build();
@@ -143,9 +143,9 @@ public class TargetEditorScreen extends Screen {
         protected void applyValue() {
             float f = (float)this.value;
             switch (name) {
-                case "Red"   -> ModSettings.customRed   = f;
-                case "Green" -> ModSettings.customGreen = f;
-                case "Blue"  -> ModSettings.customBlue  = f;
+                case "Red"   -> CoreSettings.customRed   = f;
+                case "Green" -> CoreSettings.customGreen = f;
+                case "Blue"  -> CoreSettings.customBlue  = f;
             }
         }
 

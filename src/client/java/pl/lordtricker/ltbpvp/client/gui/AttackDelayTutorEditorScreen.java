@@ -4,7 +4,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
-import pl.lordtricker.ltbpvp.client.config.ModSettings;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings;
 
 public class AttackDelayTutorEditorScreen extends Screen {
 
@@ -24,19 +24,19 @@ public class AttackDelayTutorEditorScreen extends Screen {
         int startY = this.height / 3;
 
         soundToggleButton = ButtonWidget.builder(
-                Text.of("Sound: " + (ModSettings.attackDelayTutorSoundEnabled ? "ON" : "OFF")),
+                Text.of("Sound: " + (CoreSettings.attackDelayTutorSoundEnabled ? "ON" : "OFF")),
                 button -> {
-                    ModSettings.attackDelayTutorSoundEnabled = !ModSettings.attackDelayTutorSoundEnabled;
-                    button.setMessage(Text.of("Sound: " + (ModSettings.attackDelayTutorSoundEnabled ? "ON" : "OFF")));
+                    CoreSettings.attackDelayTutorSoundEnabled = !CoreSettings.attackDelayTutorSoundEnabled;
+                    button.setMessage(Text.of("Sound: " + (CoreSettings.attackDelayTutorSoundEnabled ? "ON" : "OFF")));
                 }
         ).dimensions(centerX - 75, startY, 150, 20).build();
         addDrawableChild(soundToggleButton);
 
         textToggleButton = ButtonWidget.builder(
-                Text.of("Text: " + (ModSettings.attackDelayTutorTextEnabled ? "ON" : "OFF")),
+                Text.of("Text: " + (CoreSettings.attackDelayTutorTextEnabled ? "ON" : "OFF")),
                 button -> {
-                    ModSettings.attackDelayTutorTextEnabled = !ModSettings.attackDelayTutorTextEnabled;
-                    button.setMessage(Text.of("Text: " + (ModSettings.attackDelayTutorTextEnabled ? "ON" : "OFF")));
+                    CoreSettings.attackDelayTutorTextEnabled = !CoreSettings.attackDelayTutorTextEnabled;
+                    button.setMessage(Text.of("Text: " + (CoreSettings.attackDelayTutorTextEnabled ? "ON" : "OFF")));
                 }
         ).dimensions(centerX - 75, startY + 30, 150, 20).build();
         addDrawableChild(textToggleButton);
@@ -44,7 +44,7 @@ public class AttackDelayTutorEditorScreen extends Screen {
         backButton = ButtonWidget.builder(
                 Text.of("Save and Back"),
                 button -> {
-                    ModSettings.save();
+                    CoreSettings.save();
                     this.client.setScreen(parentScreen);
                 }
         ).dimensions(centerX - 50, this.height - 40, 100, 20).build();

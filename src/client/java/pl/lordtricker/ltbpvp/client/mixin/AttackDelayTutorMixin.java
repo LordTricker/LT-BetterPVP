@@ -12,50 +12,43 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import pl.lordtricker.ltbpvp.client.config.ModSettings;
-import pl.lordtricker.ltbpvp.client.hud.AttackDelayTutorHUD;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings;
+import pl.lordtricker.ltbpvp.core.hud.AttackDelayTutorHUD;
+import pl.lordtricker.ltbpvp.core.logic.AttackDelayTutorLogic;
 
 @Mixin(ClientPlayerEntity.class)
 public abstract class AttackDelayTutorMixin {
-
     @Unique
-    private long lastSwingTime = 0;
-    @Unique
-    private boolean hasAttackedOnce = false;
+    private final AttackDelayTutorLogic ltbpvp$logic = new AttackDelayTutorLogic();
 
-    /**
-     * Każdy zamach aktualizuje timer, ale powiadamia tylko gdy trafiamy encję
-     * i wykonujemy zamach szybciej niż cooldown.
-     */
     @Inject(method = "swingHand", at = @At("HEAD"))
     private void onSwingHand(Hand hand, CallbackInfo ci) {
-        if (!ModSettings.attackDelayTutorEnabled) {
+        if (!CoreSettings.attackDelayTutorEnabled) {
             return;
         }
 
         long currentTime = System.currentTimeMillis();
-        if (!hasAttackedOnce) {
-            hasAttackedOnce = true;
-            lastSwingTime = currentTime;
-            return;
-        }
-
-        long delta = currentTime - lastSwingTime;
-        lastSwingTime = currentTime;
 
         ClientPlayerEntity player = (ClientPlayerEntity)(Object)this;
         float attackSpeed = (float) player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_SPEED);
-        float cooldownTicks = 20.0F / attackSpeed;
-        long cooldownMs = (long)(cooldownTicks * 50);
 
         HitResult hit = MinecraftClient.getInstance().crosshairTarget;
-        if (hit instanceof EntityHitResult && delta < cooldownMs) {
-            if (ModSettings.attackDelayTutorTextEnabled) {
-                AttackDelayTutorHUD.setMessage("Uderzyłeś za szybko!", 500);
+        boolean hitEntity = hit instanceof EntityHitResult;
+        AttackDelayTutorLogic.Result result = ltbpvp$logic.onSwing(
+                currentTime,
+                hitEntity,
+                attackSpeed,
+                CoreSettings.attackDelayTutorTextEnabled,
+                CoreSettings.attackDelayTutorSoundEnabled
+        );
+        if (result != null) {
+            if (result.showText()) {
+                AttackDelayTutorHUD.setMessage(result.message(), result.durationMs());
             }
-            if (ModSettings.attackDelayTutorSoundEnabled) {
+            if (result.playSound()) {
                 player.playSound(SoundEvents.BLOCK_ANVIL_PLACE, 0.15F, 1.0F);
             }
         }
     }
 }
+

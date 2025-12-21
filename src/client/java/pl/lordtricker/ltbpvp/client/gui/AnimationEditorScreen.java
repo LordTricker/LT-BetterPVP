@@ -5,9 +5,9 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
-import pl.lordtricker.ltbpvp.client.config.ModSettings;
-import pl.lordtricker.ltbpvp.client.config.ModSettings.AnimationOffsets;
-import pl.lordtricker.ltbpvp.client.enums.SwingStyle;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings.AnimationOffsets;
+import pl.lordtricker.ltbpvp.core.enums.SwingStyle;
 
 public class AnimationEditorScreen extends Screen {
 
@@ -41,16 +41,16 @@ public class AnimationEditorScreen extends Screen {
 
         int line1Y = startY;
         swingStyleButton = ButtonWidget.builder(
-                Text.of("Style: " + getSwingStyleDisplay(ModSettings.swingStyle)),
+                Text.of("Style: " + getSwingStyleDisplay(CoreSettings.swingStyle)),
                 btn -> {
-                    ModSettings.swingStyle = getNextSwingStyle(ModSettings.swingStyle);
-                    btn.setMessage(Text.of("Style: " + getSwingStyleDisplay(ModSettings.swingStyle)));
+                    CoreSettings.swingStyle = getNextSwingStyle(CoreSettings.swingStyle);
+                    btn.setMessage(Text.of("Style: " + getSwingStyleDisplay(CoreSettings.swingStyle)));
                     refreshSliders();
                 }
         ).dimensions(centerX - widgetWidth / 2, line1Y, widgetWidth, widgetHeight).build();
         addDrawableChild(swingStyleButton);
 
-        AnimationOffsets offsets = ModSettings.styleOffsets.get(ModSettings.swingStyle);
+        AnimationOffsets offsets = CoreSettings.styleOffsets.get(CoreSettings.swingStyle);
 
         int line2Y = startY + rowSpacing;
         sliderX = createOffsetSlider("X", offsets.offsetX, centerX - widgetWidth / 2, line2Y, widgetWidth, widgetHeight);
@@ -94,7 +94,7 @@ public class AnimationEditorScreen extends Screen {
      * Odświeża suwaki, gdy zmieniamy styl animacji miecza.
      */
     private void refreshSliders() {
-        AnimationOffsets off = ModSettings.styleOffsets.get(ModSettings.swingStyle);
+        AnimationOffsets off = CoreSettings.styleOffsets.get(CoreSettings.swingStyle);
         sliderX.setSliderValue(normalizeOffset(off.offsetX));
         sliderY.setSliderValue(normalizeOffset(off.offsetY));
         sliderZ.setSliderValue(normalizeOffset(off.offsetZ));
@@ -160,7 +160,7 @@ public class AnimationEditorScreen extends Screen {
 
     /**
      * Klasa wewnętrzna SliderWidget dostosowana do zapisywania offsetów
-     * w ModSettings.styleOffsets.
+     * w CoreSettings.styleOffsets.
      */
     private class OffsetSliderWidget extends SliderWidget {
         private final String axis;
@@ -199,7 +199,7 @@ public class AnimationEditorScreen extends Screen {
             this.customValue = this.value;
             updateMessage();
 
-            AnimationOffsets off = ModSettings.styleOffsets.get(ModSettings.swingStyle);
+            AnimationOffsets off = CoreSettings.styleOffsets.get(CoreSettings.swingStyle);
             float realVal = (float)(this.customValue * 4.0 - 2.0);
 
             switch (axis) {

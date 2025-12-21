@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import pl.lordtricker.ltbpvp.client.config.ModSettings;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings;
 import pl.lordtricker.ltbpvp.client.util.ServerListPatcher;
 
 @Mixin(MultiplayerScreen.class)
@@ -19,13 +19,11 @@ public class MultiplayerScreenMixin {
 
     @Inject(method = "init", at = @At("TAIL"))
     private void ltbpvp$afterInit(CallbackInfo ci) {
-        if (!ModSettings.adsEnabled) return;
-        // First immediate try
+        if (!CoreSettings.adsEnabled) return;
         ServerList sl = ltbpvp$findServerList(this);
         if (sl != null) {
             ServerListPatcher.injectOrMove(sl);
         }
-        // Schedule one delayed refresh to catch late remote-config fetch
         if (!ltbpvp$refreshedOnce) {
             ltbpvp$refreshedOnce = true;
             try {

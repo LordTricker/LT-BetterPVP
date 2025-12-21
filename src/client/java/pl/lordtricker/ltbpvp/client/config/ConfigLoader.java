@@ -1,12 +1,11 @@
 package pl.lordtricker.ltbpvp.client.config;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import net.fabricmc.loader.api.FabricLoader;
+import pl.lordtricker.ltbpvp.core.config.CoreConfig;
+import pl.lordtricker.ltbpvp.core.config.CoreConfigIO;
+import pl.lordtricker.ltbpvp.core.config.CoreConfigLoader;
 
 import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -15,10 +14,7 @@ import java.nio.file.Path;
  * ltbetterpvp-config.json
  * w folderze: config/LT-Mods/LT-BetterPVP/
  */
-public class ConfigLoader {
-
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private static final String MAIN_CONFIG_FILE_NAME = "ltbetterpvp-config.json";
+public class ConfigLoader implements CoreConfigIO {
     private static final Path MOD_CONFIG_DIR;
 
     static {
@@ -33,45 +29,22 @@ public class ConfigLoader {
         }
     }
 
-    /**
-     * Wczytuje config z pliku JSON lub tworzy nowy, jeśli plik nie istnieje.
-     */
-    public static Config loadConfig() {
-        Path configFile = MOD_CONFIG_DIR.resolve(MAIN_CONFIG_FILE_NAME);
-
-        if (!Files.exists(configFile)) {
-            Config defaultCfg = createDefaultConfig();
-            saveConfig(defaultCfg);
-            return defaultCfg;
-        }
-
-        try (Reader reader = Files.newBufferedReader(configFile)) {
-            Config cfg = GSON.fromJson(reader, Config.class);
-            return (cfg != null) ? cfg : createDefaultConfig();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return createDefaultConfig();
-        }
+    public static CoreConfig loadConfig() {
+        return CoreConfigLoader.loadConfig(MOD_CONFIG_DIR);
     }
 
-    /**
-     * Zapisuje config do pliku JSON w docelowym folderze.
-     */
-    public static void saveConfig(Config cfg) {
-        Path configFile = MOD_CONFIG_DIR.resolve(MAIN_CONFIG_FILE_NAME);
-
-        try (Writer writer = Files.newBufferedWriter(configFile)) {
-            GSON.toJson(cfg, writer);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static void saveConfig(CoreConfig cfg) {
+        CoreConfigLoader.saveConfig(cfg, MOD_CONFIG_DIR);
     }
 
-    /**
-     * Tworzy domyślną instancję Config. (Możesz ewentualnie dodać tutaj
-     * bardziej rozbudowaną inicjalizację, jeśli chcesz.)
-     */
-    private static Config createDefaultConfig() {
-        return new Config();
+    @Override
+    public CoreConfig load() {
+        return loadConfig();
+    }
+
+    @Override
+    public void save(CoreConfig config) {
+        saveConfig(config);
     }
 }
+

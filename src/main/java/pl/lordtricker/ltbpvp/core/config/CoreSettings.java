@@ -1,13 +1,14 @@
-package pl.lordtricker.ltbpvp.client.config;
+package pl.lordtricker.ltbpvp.core.config;
 
-import pl.lordtricker.ltbpvp.client.enums.CrosshairColor;
-import pl.lordtricker.ltbpvp.client.enums.SwingStyle;
-import pl.lordtricker.ltbpvp.client.enums.TargetStyle;
+import pl.lordtricker.ltbpvp.core.enums.CrosshairColor;
+import pl.lordtricker.ltbpvp.core.enums.SwingStyle;
+import pl.lordtricker.ltbpvp.core.enums.TargetStyle;
 
 import java.util.EnumMap;
 import java.util.Map;
 
-public class ModSettings {
+public class CoreSettings {
+    private static CoreConfigIO configIO;
     public static SwingStyle swingStyle = SwingStyle.BASIC_SWING;
     public static boolean animationsEnabled = true;
     public static boolean adsEnabled = true;
@@ -39,6 +40,15 @@ public class ModSettings {
     public static boolean armorStatusTextEnabled = true;
     public static int armorStatusThreshold = 25;
 
+    public static boolean lowFireEnabled = true;
+    public static float lowFireHeight = -0.08f;
+
+    public static boolean fishingBobberEnabled = false;
+    public static float fishingBobberOffsetY = 0.0f;
+    public static float fishingBobberScale = 1.0f;
+
+    public static boolean cooldownTimerEnabled = false;
+
     static {
         for (SwingStyle style : SwingStyle.values()) {
             styleOffsets.put(style, new AnimationOffsets(0.0f, 0.0f, 0.0f));
@@ -56,20 +66,24 @@ public class ModSettings {
         }
     }
 
+    public static void init(CoreConfigIO io) {
+        configIO = io;
+    }
+
     public static void save() {
-        Config cfg = toConfig();
-        ConfigLoader.saveConfig(cfg);
-        System.out.println("[ModSettings] Saved -> ltbetterpvp-config.json");
+        CoreConfig cfg = toConfig();
+        requireConfigIO().save(cfg);
+        System.out.println("[CoreSettings] Saved -> ltbetterpvp-config.json");
     }
 
     public static void load() {
-        Config cfg = ConfigLoader.loadConfig();
+        CoreConfig cfg = requireConfigIO().load();
         applyFrom(cfg);
-        System.out.println("[ModSettings] Loaded <- ltbetterpvp-config.json");
+        System.out.println("[CoreSettings] Loaded <- ltbetterpvp-config.json");
     }
 
-    public static Config toConfig() {
-        Config cfg = new Config();
+    public static CoreConfig toConfig() {
+        CoreConfig cfg = new CoreConfig();
         cfg.animationsEnabled = animationsEnabled;
         cfg.adsEnabled = adsEnabled;
         cfg.targetingEnabled = targetingEnabled;
@@ -96,10 +110,16 @@ public class ModSettings {
         cfg.armorStatusSoundEnabled = armorStatusSoundEnabled;
         cfg.armorStatusTextEnabled = armorStatusTextEnabled;
         cfg.armorStatusThreshold = armorStatusThreshold;
+        cfg.lowFireEnabled = lowFireEnabled;
+        cfg.lowFireHeight = lowFireHeight;
+        cfg.fishingBobberEnabled = fishingBobberEnabled;
+        cfg.fishingBobberOffsetY = fishingBobberOffsetY;
+        cfg.fishingBobberScale = fishingBobberScale;
+        cfg.cooldownTimerEnabled = cooldownTimerEnabled;
         return cfg;
     }
 
-    public static void applyFrom(Config cfg) {
+    public static void applyFrom(CoreConfig cfg) {
         animationsEnabled = cfg.animationsEnabled;
         adsEnabled = cfg.adsEnabled;
         targetingEnabled = cfg.targetingEnabled;
@@ -126,12 +146,26 @@ public class ModSettings {
         armorStatusSoundEnabled = cfg.armorStatusSoundEnabled;
         armorStatusTextEnabled = cfg.armorStatusTextEnabled;
         armorStatusThreshold = cfg.armorStatusThreshold;
+        lowFireEnabled = cfg.lowFireEnabled;
+        lowFireHeight = cfg.lowFireHeight;
+        fishingBobberEnabled = cfg.fishingBobberEnabled;
+        fishingBobberOffsetY = cfg.fishingBobberOffsetY;
+        fishingBobberScale = cfg.fishingBobberScale;
+        cooldownTimerEnabled = cfg.cooldownTimerEnabled;
         for (SwingStyle style : cfg.styleOffsets.keySet()) {
-            Config.AnimationOffsets coff = cfg.styleOffsets.get(style);
+            CoreConfig.AnimationOffsets coff = cfg.styleOffsets.get(style);
             AnimationOffsets moff = styleOffsets.get(style);
             moff.offsetX = coff.offsetX;
             moff.offsetY = coff.offsetY;
             moff.offsetZ = coff.offsetZ;
         }
     }
+
+    private static CoreConfigIO requireConfigIO() {
+        if (configIO == null) {
+            throw new IllegalStateException("CoreSettings CoreConfigIO not initialized.");
+        }
+        return configIO;
+    }
 }
+

@@ -6,15 +6,13 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.CommandRegistryAccess;
-import pl.lordtricker.ltbpvp.client.config.ModSettings;
 import pl.lordtricker.ltbpvp.client.gui.MainSettingsScreen;
-import pl.lordtricker.ltbpvp.client.util.ColorUtils;
 import pl.lordtricker.ltbpvp.client.util.Messages;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings;
 
-public class CommandRegistration {
-
+public class ClientCommandRegistration {
     public static void registerCommands() {
-        ClientCommandRegistrationCallback.EVENT.register(CommandRegistration::registerLtbCommand);
+        ClientCommandRegistrationCallback.EVENT.register(ClientCommandRegistration::registerLtbCommand);
     }
 
     private static void registerLtbCommand(
@@ -27,7 +25,7 @@ public class CommandRegistration {
                         .executes(ctx -> {
                             String msgKey = "command.info";
                             String message = Messages.get(msgKey);
-                            ctx.getSource().sendFeedback(ColorUtils.translateColorCodes(message));
+                            ctx.getSource().sendFeedback(CommandUi.colored(message));
                             return 1;
                         })
                         // /ltb pomoc – lista dostępnych komend
@@ -35,7 +33,7 @@ public class CommandRegistration {
                                 .executes(ctx -> {
                                     String msgKey = "command.help";
                                     String helpMessage = Messages.get(msgKey);
-                                    ctx.getSource().sendFeedback(ColorUtils.translateColorCodes(helpMessage));
+                                    ctx.getSource().sendFeedback(CommandUi.colored(helpMessage));
                                     return 1;
                                 })
                         )
@@ -59,19 +57,19 @@ public class CommandRegistration {
                         .then(ClientCommandManager.literal("config")
                                 .then(ClientCommandManager.literal("save")
                                         .executes(ctx -> {
-                                            ModSettings.save();
+                                            CoreSettings.save();
                                             String msgKey = "command.config.save.success";
                                             String msg = Messages.get(msgKey);
-                                            ctx.getSource().sendFeedback(ColorUtils.translateColorCodes(msg));
+                                            ctx.getSource().sendFeedback(CommandUi.colored(msg));
                                             return 1;
                                         })
                                 )
                                 .then(ClientCommandManager.literal("reload")
                                         .executes(ctx -> {
-                                            ModSettings.load();
+                                            CoreSettings.load();
                                             String msgKey = "command.config.reload.success";
                                             String msg = Messages.get(msgKey);
-                                            ctx.getSource().sendFeedback(ColorUtils.translateColorCodes(msg));
+                                            ctx.getSource().sendFeedback(CommandUi.colored(msg));
                                             return 1;
                                         })
                                 )
@@ -79,3 +77,4 @@ public class CommandRegistration {
         );
     }
 }
+

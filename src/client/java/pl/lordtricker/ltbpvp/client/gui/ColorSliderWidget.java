@@ -2,7 +2,7 @@ package pl.lordtricker.ltbpvp.client.gui;
 
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
-import pl.lordtricker.ltbpvp.client.config.ModSettings;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings;
 
 
 public class ColorSliderWidget extends SliderWidget {
@@ -23,9 +23,9 @@ public class ColorSliderWidget extends SliderWidget {
     protected void applyValue() {
         float f = (float) this.value;
         switch (name) {
-            case "Red"   -> ModSettings.customRed   = f;
-            case "Green" -> ModSettings.customGreen = f;
-            case "Blue"  -> ModSettings.customBlue  = f;
+            case "Red"   -> CoreSettings.customRed   = f;
+            case "Green" -> CoreSettings.customGreen = f;
+            case "Blue"  -> CoreSettings.customBlue  = f;
         }
     }
 

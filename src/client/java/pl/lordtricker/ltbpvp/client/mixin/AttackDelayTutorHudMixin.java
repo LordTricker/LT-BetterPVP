@@ -9,28 +9,26 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import pl.lordtricker.ltbpvp.client.hud.AttackDelayTutorHUD;
+import pl.lordtricker.ltbpvp.core.hud.AttackDelayTutorHUD;
 
 @Mixin(InGameHud.class)
 public abstract class AttackDelayTutorHudMixin {
-
     @Inject(method = "renderCrosshair", at = @At("RETURN"))
     private void renderAttackTutorMessage(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         long currentTime = System.currentTimeMillis();
-        if (AttackDelayTutorHUD.expirationTime > currentTime && !AttackDelayTutorHUD.message.isEmpty()) {
+        if (AttackDelayTutorHUD.shouldRender(currentTime)) {
             MinecraftClient client = MinecraftClient.getInstance();
             int screenWidth = client.getWindow().getScaledWidth();
             int screenHeight = client.getWindow().getScaledHeight();
             Text text = Text.literal(AttackDelayTutorHUD.message);
             int textWidth = client.textRenderer.getWidth(text);
             int x = (screenWidth - textWidth) / 2;
-            int y = screenHeight / 2 + 25;
-            int xOffset = 25;
+            int y = screenHeight / 2 + AttackDelayTutorHUD.Y_OFFSET;
 
             context.getMatrices().push();
-            float scale = 0.7F;
+            float scale = AttackDelayTutorHUD.SCALE;
             context.getMatrices().scale(scale, scale, scale);
-            context.drawText(client.textRenderer, text, (int)((x + xOffset) / scale), (int)(y / scale), 0xFF0000, true);
+            context.drawText(client.textRenderer, text, (int)((x + AttackDelayTutorHUD.X_OFFSET) / scale), (int)(y / scale), 0xFF0000, true);
             context.getMatrices().pop();
         }
     }

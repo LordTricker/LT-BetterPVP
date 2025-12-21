@@ -5,8 +5,8 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.text.Text;
-import pl.lordtricker.ltbpvp.client.config.ModSettings;
-import pl.lordtricker.ltbpvp.client.config.ModSettings.AnimationOffsets;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings.AnimationOffsets;
 
 public class OffHandAnimationEditorScreen extends Screen {
     private final Screen parent;
@@ -31,7 +31,7 @@ public class OffHandAnimationEditorScreen extends Screen {
         // X offset slider
         sliderX = new OffsetSliderWidget(
                 "X", centerX - WIDGET_WIDTH / 2, y, WIDGET_WIDTH, WIDGET_HEIGHT,
-                ModSettings.offhandOffsets.offsetX
+                CoreSettings.offhandOffsets.offsetX
         );
         addDrawableChild(sliderX);
 
@@ -39,7 +39,7 @@ public class OffHandAnimationEditorScreen extends Screen {
         y += ROW_SPACING;
         sliderY = new OffsetSliderWidget(
                 "Y", centerX - WIDGET_WIDTH / 2, y, WIDGET_WIDTH, WIDGET_HEIGHT,
-                ModSettings.offhandOffsets.offsetY
+                CoreSettings.offhandOffsets.offsetY
         );
         addDrawableChild(sliderY);
 
@@ -47,7 +47,7 @@ public class OffHandAnimationEditorScreen extends Screen {
         y += ROW_SPACING;
         sliderZ = new OffsetSliderWidget(
                 "Z", centerX - WIDGET_WIDTH / 2, y, WIDGET_WIDTH, WIDGET_HEIGHT,
-                ModSettings.offhandOffsets.offsetZ
+                CoreSettings.offhandOffsets.offsetZ
         );
         addDrawableChild(sliderZ);
 
@@ -56,9 +56,9 @@ public class OffHandAnimationEditorScreen extends Screen {
         resetButton = ButtonWidget.builder(
                 Text.of("Reset"),
                 btn -> {
-                    ModSettings.offhandOffsets.offsetX = 0f;
-                    ModSettings.offhandOffsets.offsetY = 0f;
-                    ModSettings.offhandOffsets.offsetZ = 0f;
+                    CoreSettings.offhandOffsets.offsetX = 0f;
+                    CoreSettings.offhandOffsets.offsetY = 0f;
+                    CoreSettings.offhandOffsets.offsetZ = 0f;
                     sliderX.setSliderValue(0f);
                     sliderY.setSliderValue(0f);
                     sliderZ.setSliderValue(0f);
@@ -110,7 +110,7 @@ public class OffHandAnimationEditorScreen extends Screen {
         @Override
         protected void applyValue() {
             float offset = denormalize(this.value);
-            AnimationOffsets off = ModSettings.offhandOffsets;
+            AnimationOffsets off = CoreSettings.offhandOffsets;
             switch (axis) {
                 case "X" -> off.offsetX = offset;
                 case "Y" -> off.offsetY = offset;

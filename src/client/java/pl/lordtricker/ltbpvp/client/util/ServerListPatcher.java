@@ -2,8 +2,9 @@ package pl.lordtricker.ltbpvp.client.util;
 
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.ServerList;
-import pl.lordtricker.ltbpvp.client.config.ModSettings;
 import pl.lordtricker.ltbpvp.client.mixin.ServerListAccessor;
+import pl.lordtricker.ltbpvp.core.config.CoreSettings;
+import pl.lordtricker.ltbpvp.core.util.RemoteAdConfig;
 
 import java.util.List;
 import java.util.Locale;
@@ -13,7 +14,7 @@ public final class ServerListPatcher {
 
     public static void injectOrMove(ServerList serverList) {
         if (serverList == null) return;
-        if (!ModSettings.adsEnabled) return;
+        if (!CoreSettings.adsEnabled) return;
 
         String address = RemoteAdConfig.serverAddress();
         if (address == null) {

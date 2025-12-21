@@ -1,6 +1,4 @@
-package pl.lordtricker.ltbpvp.client.enums;
-
-import net.minecraft.util.Identifier;
+package pl.lordtricker.ltbpvp.core.enums;
 
 public enum TargetStyle {
     CIRCLE_DASHED("ltbpvp", "textures/target/cross_circle_dashed.png"),
@@ -20,13 +18,19 @@ public enum TargetStyle {
     X("ltbpvp", "textures/target/cross_x.png"),
     X_OUTLINE("ltbpvp", "textures/target/cross_x_outline.png");
 
-    private final Identifier texture;
+    private final String namespace;
+    private final String path;
 
     TargetStyle(String namespace, String path) {
-        this.texture = Identifier.of(namespace, path);
+        this.namespace = namespace;
+        this.path = path;
     }
 
-    public Identifier getTexture() {
-        return texture;
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public String getPath() {
+        return path;
     }
 }

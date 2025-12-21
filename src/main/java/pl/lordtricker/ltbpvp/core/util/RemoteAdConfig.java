@@ -1,4 +1,4 @@
-package pl.lordtricker.ltbpvp.client.util;
+package pl.lordtricker.ltbpvp.core.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
