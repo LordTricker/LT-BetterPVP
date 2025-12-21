@@ -1,7 +1,7 @@
 package pl.lordtricker.ltbpvp.client.mixin;
 
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.client.util.math.MatrixStack;
@@ -41,7 +41,7 @@ public abstract class CustomHandMixin {
             ItemStack stack,
             float equipProgress,
             MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers,
+            OrderedRenderCommandQueue renderCommandQueue,
             int light,
             CallbackInfo ci
     ) {
@@ -80,7 +80,7 @@ public abstract class CustomHandMixin {
             ItemDisplayContext mode = isRight
                     ? ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
                     : ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
-            self.renderItem(player, stack, mode, matrices, vertexConsumers, light);
+            self.renderItem(player, stack, mode, matrices, renderCommandQueue, light);
 
         } else if (hand == Hand.OFF_HAND) {
             if (player.isUsingItem() && player.getActiveHand() == Hand.OFF_HAND) {
@@ -96,7 +96,7 @@ public abstract class CustomHandMixin {
             ItemDisplayContext mode = isRight
                     ? ItemDisplayContext.FIRST_PERSON_LEFT_HAND
                     : ItemDisplayContext.FIRST_PERSON_RIGHT_HAND;
-            self.renderItem(player, stack, mode, matrices, vertexConsumers, light);
+            self.renderItem(player, stack, mode, matrices, renderCommandQueue, light);
         }
         matrices.pop();
     }

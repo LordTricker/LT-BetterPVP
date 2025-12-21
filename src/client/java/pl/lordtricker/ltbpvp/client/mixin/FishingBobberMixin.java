@@ -1,8 +1,9 @@
 package pl.lordtricker.ltbpvp.client.mixin;
 
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.FishingBobberEntityRenderer;
 import net.minecraft.client.render.entity.state.FishingBobberEntityState;
+import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,8 +21,8 @@ public abstract class FishingBobberMixin {
     )
     private void ltbpvp$beforeRender(FishingBobberEntityState state,
                                      MatrixStack matrices,
-                                     VertexConsumerProvider vertexConsumers,
-                                     int light,
+                                     OrderedRenderCommandQueue renderCommandQueue,
+                                     CameraRenderState cameraRenderState,
                                      CallbackInfo ci) {
         if (!CoreSettings.fishingBobberEnabled) {
             return;
@@ -40,8 +41,8 @@ public abstract class FishingBobberMixin {
     )
     private void ltbpvp$afterRender(FishingBobberEntityState state,
                                     MatrixStack matrices,
-                                    VertexConsumerProvider vertexConsumers,
-                                    int light,
+                                    OrderedRenderCommandQueue renderCommandQueue,
+                                    CameraRenderState cameraRenderState,
                                     CallbackInfo ci) {
         if (!CoreSettings.fishingBobberEnabled) {
             return;

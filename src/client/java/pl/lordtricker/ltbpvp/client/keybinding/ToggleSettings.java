@@ -14,7 +14,7 @@ public class ToggleSettings {
         toggleKey = new KeyBinding(
                 "GUI ustawień betterpvp",
                 GLFW.GLFW_KEY_V,
-                "LT-Mods binds"
+                KeyBinding.Category.MISC
         );
         KeyBindingHelper.registerKeyBinding(toggleKey);
 
