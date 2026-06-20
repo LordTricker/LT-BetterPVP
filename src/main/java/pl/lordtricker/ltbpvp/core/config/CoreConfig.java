@@ -1,8 +1,10 @@
 package pl.lordtricker.ltbpvp.core.config;
 
 import pl.lordtricker.ltbpvp.core.enums.CrosshairColor;
+import pl.lordtricker.ltbpvp.core.enums.DistanceDisplayMode;
 import pl.lordtricker.ltbpvp.core.enums.SwingStyle;
 import pl.lordtricker.ltbpvp.core.enums.TargetStyle;
+import pl.lordtricker.ltbpvp.core.logic.CooldownTimerLogic;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -42,6 +44,10 @@ public class CoreConfig {
     public float fishingBobberScale = 1.0f;
 
     public boolean cooldownTimerEnabled = false;
+    public int cooldownTimerColor = CooldownTimerLogic.DEFAULT_COLOR;
+    public int shieldCooldownTimerColor = CooldownTimerLogic.DEFAULT_SHIELD_COLOR;
+    public boolean distanceHudEnabled = false;
+    public DistanceDisplayMode distanceDisplayMode = DistanceDisplayMode.ENTITY_ONLY;
 
     public Map<SwingStyle, AnimationOffsets> styleOffsets = new EnumMap<>(SwingStyle.class);
 

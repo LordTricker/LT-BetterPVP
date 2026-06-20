@@ -1,8 +1,10 @@
 package pl.lordtricker.ltbpvp.core.config;
 
 import pl.lordtricker.ltbpvp.core.enums.CrosshairColor;
+import pl.lordtricker.ltbpvp.core.enums.DistanceDisplayMode;
 import pl.lordtricker.ltbpvp.core.enums.SwingStyle;
 import pl.lordtricker.ltbpvp.core.enums.TargetStyle;
+import pl.lordtricker.ltbpvp.core.logic.CooldownTimerLogic;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -48,6 +50,10 @@ public class CoreSettings {
     public static float fishingBobberScale = 1.0f;
 
     public static boolean cooldownTimerEnabled = false;
+    public static int cooldownTimerColor = CooldownTimerLogic.DEFAULT_COLOR;
+    public static int shieldCooldownTimerColor = CooldownTimerLogic.DEFAULT_SHIELD_COLOR;
+    public static boolean distanceHudEnabled = false;
+    public static DistanceDisplayMode distanceDisplayMode = DistanceDisplayMode.ENTITY_ONLY;
 
     static {
         for (SwingStyle style : SwingStyle.values()) {
@@ -116,6 +122,10 @@ public class CoreSettings {
         cfg.fishingBobberOffsetY = fishingBobberOffsetY;
         cfg.fishingBobberScale = fishingBobberScale;
         cfg.cooldownTimerEnabled = cooldownTimerEnabled;
+        cfg.cooldownTimerColor = cooldownTimerColor;
+        cfg.shieldCooldownTimerColor = shieldCooldownTimerColor;
+        cfg.distanceHudEnabled = distanceHudEnabled;
+        cfg.distanceDisplayMode = distanceDisplayMode;
         return cfg;
     }
 
@@ -152,6 +162,10 @@ public class CoreSettings {
         fishingBobberOffsetY = cfg.fishingBobberOffsetY;
         fishingBobberScale = cfg.fishingBobberScale;
         cooldownTimerEnabled = cfg.cooldownTimerEnabled;
+        cooldownTimerColor = cfg.cooldownTimerColor;
+        shieldCooldownTimerColor = cfg.shieldCooldownTimerColor;
+        distanceHudEnabled = cfg.distanceHudEnabled;
+        distanceDisplayMode = cfg.distanceDisplayMode;
         for (SwingStyle style : cfg.styleOffsets.keySet()) {
             CoreConfig.AnimationOffsets coff = cfg.styleOffsets.get(style);
             AnimationOffsets moff = styleOffsets.get(style);

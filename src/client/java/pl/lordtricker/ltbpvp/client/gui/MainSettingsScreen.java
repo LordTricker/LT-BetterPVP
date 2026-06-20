@@ -36,6 +36,8 @@ public class MainSettingsScreen extends Screen {
     private ButtonWidget bobViewButton;
     private ButtonWidget damageTiltButton;
     private ButtonWidget cooldownTimerButton;
+    private ButtonWidget cooldownTimerEditButton;
+    private ButtonWidget distanceCycleButton;
 
     private int rowHeight;
     private final int labelAreaWidth = 148;
@@ -66,8 +68,8 @@ public class MainSettingsScreen extends Screen {
         int compactBlockHeight = 44;
         int compactExtraGap = 8;
 
-        /* 7 rows + compact block: 0 tutor, 1 sword, 2 offhand, 3 cursor, 4 armor, 5 lowfire, 6 bobber */
-        int standardRows    = 7;
+        /* 8 rows + compact block: 0 tutor, 1 sword, 2 offhand, 3 cursor, 4 armor, 5 lowfire, 6 bobber, 7 cooldown */
+        int standardRows    = 8;
         int totalBlockHeight = standardRows * rowHeight + compactBlockHeight + compactExtraGap;
         this.startY = (this.height - totalBlockHeight) / 2;
 
@@ -206,6 +208,25 @@ public class MainSettingsScreen extends Screen {
         addDrawableChild(bobberEditButton);
         bobberEditButton.active = CoreSettings.fishingBobberEnabled;
 
+        /* --- Cooldown timer ------------------------------------ */
+        y += rowHeight;
+        cooldownTimerButton = ButtonWidget.builder(
+                Text.of(getToggleDisplay(CoreSettings.cooldownTimerEnabled)),
+                btn -> {
+                    CoreSettings.cooldownTimerEnabled = !CoreSettings.cooldownTimerEnabled;
+                    btn.setMessage(Text.of(getToggleDisplay(CoreSettings.cooldownTimerEnabled)));
+                    cooldownTimerEditButton.active = CoreSettings.cooldownTimerEnabled;
+                }
+        ).dimensions(buttonX, y, toggleWidth, btnHeight).build();
+        addDrawableChild(cooldownTimerButton);
+
+        cooldownTimerEditButton = ButtonWidget.builder(
+                Text.of("..."),
+                btn -> this.client.setScreen(new CooldownTimerEditorScreen(this))
+        ).dimensions(buttonX + toggleWidth, y, editWidth, btnHeight).build();
+        addDrawableChild(cooldownTimerEditButton);
+        cooldownTimerEditButton.active = CoreSettings.cooldownTimerEnabled;
+
         /* --- Compact Minecraft toggles --------------------------- */
         y += rowHeight + compactExtraGap;
         compactLabelY = y;
@@ -253,14 +274,14 @@ public class MainSettingsScreen extends Screen {
         ).dimensions(compactLeft + (compactButtonWidth + compactGap) * 2, compactButtonY, compactButtonWidth, btnHeight).build();
         addDrawableChild(damageTiltButton);
 
-        cooldownTimerButton = ButtonWidget.builder(
-                Text.of(getToggleDisplay(CoreSettings.cooldownTimerEnabled)),
+        distanceCycleButton = ButtonWidget.builder(
+                Text.of(getDistanceDisplay()),
                 btn -> {
-                    CoreSettings.cooldownTimerEnabled = !CoreSettings.cooldownTimerEnabled;
-                    btn.setMessage(Text.of(getToggleDisplay(CoreSettings.cooldownTimerEnabled)));
+                    cycleDistanceDisplay();
+                    btn.setMessage(Text.of(getDistanceDisplay()));
                 }
         ).dimensions(compactLeft + (compactButtonWidth + compactGap) * 3, compactButtonY, compactButtonWidth, btnHeight).build();
-        addDrawableChild(cooldownTimerButton);
+        addDrawableChild(distanceCycleButton);
 
         /* --- Save & quit ------------------------------------------ */
         ButtonWidget saveBtn = ButtonWidget.builder(
@@ -277,6 +298,25 @@ public class MainSettingsScreen extends Screen {
 
     private String getToggleDisplay(boolean value) {
         return value ? "ON" : "OFF";
+    }
+
+    private String getDistanceDisplay() {
+        return CoreSettings.distanceHudEnabled ? CoreSettings.distanceDisplayMode.getLabel() : "OFF";
+    }
+
+    private void cycleDistanceDisplay() {
+        if (!CoreSettings.distanceHudEnabled) {
+            CoreSettings.distanceHudEnabled = true;
+            CoreSettings.distanceDisplayMode = pl.lordtricker.ltbpvp.core.enums.DistanceDisplayMode.ENTITY_ONLY;
+            return;
+        }
+        switch (CoreSettings.distanceDisplayMode) {
+            case ENTITY_ONLY -> CoreSettings.distanceDisplayMode = CoreSettings.distanceDisplayMode.next();
+            case ALL -> {
+                CoreSettings.distanceHudEnabled = false;
+                CoreSettings.distanceDisplayMode = pl.lordtricker.ltbpvp.core.enums.DistanceDisplayMode.ENTITY_ONLY;
+            }
+        }
     }
 
     @Override
@@ -296,11 +336,12 @@ public class MainSettingsScreen extends Screen {
         ctx.drawText(this.textRenderer, "Armor status:",        labelX, startY + 4 * rowHeight + 5, 0xFFFFFF, false);
         ctx.drawText(this.textRenderer, "Low Fire:",            labelX, startY + 5 * rowHeight + 5, 0xFFFFFF, false);
         ctx.drawText(this.textRenderer, "Fishing Bobber:",      labelX, startY + 6 * rowHeight + 5, 0xFFFFFF, false);
+        ctx.drawText(this.textRenderer, "Cooldown Timer:",      labelX, startY + 7 * rowHeight + 5, 0xFFFFFF, false);
 
         ctx.drawText(this.textRenderer, "Auto Jump:", compactLeft, compactLabelY, 0xFFFFFF, false);
         ctx.drawText(this.textRenderer, "View Bobbing:", compactLeft + compactButtonWidth + compactGap, compactLabelY, 0xFFFFFF, false);
         ctx.drawText(this.textRenderer, "Screen Shake:", compactLeft + (compactButtonWidth + compactGap) * 2, compactLabelY, 0xFFFFFF, false);
-        ctx.drawText(this.textRenderer, "Cooldown Timer:", compactLeft + (compactButtonWidth + compactGap) * 3, compactLabelY, 0xFFFFFF, false);
+        ctx.drawText(this.textRenderer, "Distance HUD:", compactLeft + (compactButtonWidth + compactGap) * 3, compactLabelY, 0xFFFFFF, false);
     }
 
     private void drawCenteredTextLocal(DrawContext ctx, Text text, int y, int color) {
