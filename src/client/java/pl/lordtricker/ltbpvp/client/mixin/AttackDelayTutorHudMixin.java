@@ -22,13 +22,14 @@ public abstract class AttackDelayTutorHudMixin {
             int screenHeight = client.getWindow().getScaledHeight();
             Text text = Text.literal(AttackDelayTutorHUD.message);
             int textWidth = client.textRenderer.getWidth(text);
-            int x = (screenWidth - textWidth) / 2;
             int y = screenHeight / 2 + AttackDelayTutorHUD.Y_OFFSET;
 
             context.getMatrices().pushMatrix();
             float scale = AttackDelayTutorHUD.SCALE;
             context.getMatrices().scale(scale, scale);
-            context.drawText(client.textRenderer, text, (int)((x + AttackDelayTutorHUD.X_OFFSET) / scale), (int)(y / scale), 0xFFFF0000, true);
+            int scaledCenterX = Math.round((screenWidth / 2.0F) / scale);
+            int scaledX = Math.round(scaledCenterX - textWidth / 2.0F);
+            context.drawText(client.textRenderer, text, scaledX, Math.round(y / scale), 0xFFFF0000, true);
             context.getMatrices().popMatrix();
         }
     }

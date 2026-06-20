@@ -6,6 +6,7 @@ import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.player.ItemCooldownManager;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -86,19 +87,22 @@ public class CooldownTimerMixin {
         float drawY = (centerY - (client.textRenderer.fontHeight / 2.0f)) / scale;
         context.getMatrices().pushMatrix();
         context.getMatrices().scale(scale, scale);
-        context.drawText(client.textRenderer, text, Math.round(drawX), Math.round(drawY), 0xFFFF0000, true);
+        int color = stack.isOf(Items.SHIELD)
+                ? CoreSettings.shieldCooldownTimerColor
+                : CoreSettings.cooldownTimerColor;
+        context.drawText(client.textRenderer, text, Math.round(drawX), Math.round(drawY), color, true);
         context.getMatrices().popMatrix();
-        drawCooldownBar(context, x, y, startTick, endTick, remainingTicks);
+        drawCooldownBar(context, x, y, startTick, endTick, remainingTicks, color);
     }
 
-    private void drawCooldownBar(DrawContext context, int x, int y, int startTick, int endTick, int remainingTicks) {
+    private void drawCooldownBar(DrawContext context, int x, int y, int startTick, int endTick, int remainingTicks, int color) {
         int total = endTick - startTick;
         if (total <= 0) {
             return;
         }
         float fraction = Math.min(1.0f, Math.max(0.0f, remainingTicks / (float) total));
         int barWidth = Math.max(1, Math.round(16 * fraction));
-        context.fill(x, y, x + barWidth, y + 2, 0xFFFF0000);
+        context.fill(x, y, x + barWidth, y + 2, color);
     }
 
     private void drawFinishFlash(DrawContext context, int x, int y) {
