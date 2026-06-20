@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import pl.lordtricker.ltbpvp.core.enums.DistanceDisplayMode;
+import pl.lordtricker.ltbpvp.core.logic.CooldownTimerLogic;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -112,6 +114,22 @@ public final class CoreConfigLoader {
         }
         if (!obj.has("cooldownTimerEnabled")) {
             cfg.cooldownTimerEnabled = false;
+            updated = true;
+        }
+        if (!obj.has("cooldownTimerColor")) {
+            cfg.cooldownTimerColor = CooldownTimerLogic.DEFAULT_COLOR;
+            updated = true;
+        }
+        if (!obj.has("shieldCooldownTimerColor")) {
+            cfg.shieldCooldownTimerColor = CooldownTimerLogic.DEFAULT_SHIELD_COLOR;
+            updated = true;
+        }
+        if (!obj.has("distanceHudEnabled")) {
+            cfg.distanceHudEnabled = false;
+            updated = true;
+        }
+        if (!obj.has("distanceDisplayMode") || cfg.distanceDisplayMode == null) {
+            cfg.distanceDisplayMode = DistanceDisplayMode.ENTITY_ONLY;
             updated = true;
         }
         return updated;
